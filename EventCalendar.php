@@ -50,7 +50,7 @@ $wgExtensionMessagesFiles['EventCalendar'] = $dir . 'EventCalendar.i18n.php';
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
     // 'scripts' => array( 'js/ext.myExtension.core.js', 'js/ext.myExtension.foobar.js' ),
-    'scripts' => array('js/ext.yasec.core.js'),
+    'scripts' => array('ext.yasec.core.js'),
     // 'styles' => 'css/ext.myExtension.css',
 
     // When your module is loaded, these messages will be available through mw.msg().
@@ -67,7 +67,7 @@ $wgResourceModules['ext.yasec'] = array(
     // ... and the base from the browser as well. For extensions this is made easy,
     // you can use the 'remoteExtPath' property to declare it relative to where the wiki
     // has $wgExtensionAssetsPath configured:
-    'remoteExtPath' => 'yasec'
+    'remoteExtPath' => 'yasec/resources'
 );
 
 $wgHooks['BeforePageDisplay'][] = 'wfEventCalendarOnBeforePageDisplay';
