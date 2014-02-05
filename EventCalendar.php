@@ -49,9 +49,9 @@ $wgExtensionMessagesFiles['EventCalendar'] = $dir . 'EventCalendar.i18n.php';
 // JavaScript and CSS resources
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    // 'scripts' => array( 'js/ext.myExtension.core.js', 'js/ext.myExtension.foobar.js' ),
+    // 'scripts' => array('fullcalendar/lib/moment.min.js', 'fullcalendar/fullcalendar/fullcalendar.min.js', 'ext.yasec.core.js'),
     'scripts' => array('ext.yasec.core.js'),
-    // 'styles' => 'css/ext.myExtension.css',
+    'styles' => 'fullcalendar/fullcalendar/fullcalendar.css',
 
     // When your module is loaded, these messages will be available through mw.msg().
     // E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
@@ -60,7 +60,7 @@ $wgResourceModules['ext.yasec'] = array(
     // If your scripts need code from other modules, list their identifiers as dependencies
     // and ResourceLoader will make sure they're loaded before you.
     // You don't need to manually list 'mediawiki' or 'jquery', which are always loaded.
-    // 'dependencies' => array( 'jquery.ui.datepicker' ),
+    // 'dependencies' => array('jquery.ui'),
 
     // You need to declare the base path of the file paths in 'scripts' and 'styles'
     'localBasePath' => __DIR__,
@@ -100,6 +100,7 @@ function wfEventCalendar(&$parser) {
 }
 
 function renderEventCalendar($input, $args, $mwParser) {
+    // $parser->getOutput()->addModules( 'module name goes here' );
     return '<strong>{EventCalendar}</strong>';
 }
 
