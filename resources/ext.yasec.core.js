@@ -1,1 +1,1 @@
-window.yasec = 213;
+$("#cal1").fullCalendar({ aspectRatio: 1.6 });
