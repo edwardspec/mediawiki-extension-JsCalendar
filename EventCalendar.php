@@ -1,13 +1,13 @@
 <?php
 /*
 
- Purpose:       outputs a bulleted list of most recent
-                items residing in a category, or a union
-                of several categories.
+ Yet Another Simple Event Calendar
+ https://github.com/improper/mediawiki-extensions-yasec
 
- Contributors: n:en:User:IlyaHaykinson n:en:User:Amgine
- http://en.wikinews.org/wiki/User:Amgine
- http://en.wikinews.org/wiki/User:IlyaHaykinson
+ Purpose: outputs a tabular calendar filled with events automatically
+          generated from page titles in a certain namespace
+
+ Based on the intersection extension.
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -24,12 +24,8 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  http://www.gnu.org/copyleft/gpl.html
 
- Current feature request list
-	 1. Unset cached of calling page
-	 2. RSS feed output? (GNSM extension?)
-
  To install, add following to LocalSettings.php
-   include("$IP/extensions/intersection/DynamicPageList.php");
+   include("$IP/extensions/yasec/EventCalendar.php");
 
 */
 
