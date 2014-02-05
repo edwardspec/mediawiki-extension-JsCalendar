@@ -46,6 +46,36 @@ $wgExtensionCredits['parserhook'][] = array(
 $dir = __DIR__ . '/';
 $wgExtensionMessagesFiles['EventCalendar'] = $dir . 'EventCalendar.i18n.php';
 
+// JavaScript and CSS resources
+$wgResourceModules['ext.yasec'] = array(
+    // JavaScript and CSS styles. To combine multiple files, just list them as an array.
+    // 'scripts' => array( 'js/ext.myExtension.core.js', 'js/ext.myExtension.foobar.js' ),
+    'scripts' => array('js/ext.yasec.core.js'),
+    // 'styles' => 'css/ext.myExtension.css',
+
+    // When your module is loaded, these messages will be available through mw.msg().
+    // E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
+    // 'messages' => array( 'myextension-hello-world', 'myextension-goodbye-world' ),
+
+    // If your scripts need code from other modules, list their identifiers as dependencies
+    // and ResourceLoader will make sure they're loaded before you.
+    // You don't need to manually list 'mediawiki' or 'jquery', which are always loaded.
+    // 'dependencies' => array( 'jquery.ui.datepicker' ),
+
+    // You need to declare the base path of the file paths in 'scripts' and 'styles'
+    'localBasePath' => __DIR__,
+    // ... and the base from the browser as well. For extensions this is made easy,
+    // you can use the 'remoteExtPath' property to declare it relative to where the wiki
+    // has $wgExtensionAssetsPath configured:
+    'remoteExtPath' => 'yasec'
+);
+
+$wgHooks['BeforePageDisplay'][] = 'wfEventCalendarOnBeforePageDisplay';
+
+function wfEventCalendarOnBeforePageDisplay(&$out, &$skin) {
+    $out->addModules('ext.yasec');
+}
+
 # Configuration variables. Warning: These use DLP instead of DPL
 # for historical reasons (pretend Dynamic list of pages)
 // $wgDLPmaxCategories = 6;                // Maximum number of categories to look for
