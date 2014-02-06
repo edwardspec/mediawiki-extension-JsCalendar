@@ -69,11 +69,13 @@ $wgResourceModules['ext.yasec'] = array(
     'remoteExtPath' => 'yasec/resources'
 );
 
+/*
 $wgHooks['BeforePageDisplay'][] = 'wfEventCalendarOnBeforePageDisplay';
 
 function wfEventCalendarOnBeforePageDisplay(&$out, &$skin) {
     $out->addModules('ext.yasec');
 }
+*/
 
 # Configuration variables. Warning: These use DLP instead of DPL
 # for historical reasons (pretend Dynamic list of pages)
@@ -99,7 +101,14 @@ function wfEventCalendar(&$parser) {
 }
 
 function renderEventCalendar($input, $args, $mwParser) {
-    return '<div id="cal1" style="max-width: 800px;"><strong>{EventCalendar}</strong></div>';
+    $mwParser->disableCache();
+    $mwParser->getOutput()->addModules('ext.yasec');
+
+    global $yasecCounter;
+    $yasecCounter += 1;
+
+    return '<script>window.yasec = ' . (212 + $yasecCounter) . ';</script>' .
+        '<div id="cal1" style="max-width: 800px;"><strong>{EventCalendarrr' . $yasecCounter . '}</strong></div>';
 }
 
 /*
