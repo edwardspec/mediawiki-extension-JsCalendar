@@ -1,3 +1,4 @@
-$("#cal1").fullCalendar({ aspectRatio: 1.6 });
-
-console.log("yasec " + window.yasec);
+$("#eventcalendar-1").fullCalendar({
+    aspectRatio: 1.6,
+    events: window.eventCalendarData[0]
+});

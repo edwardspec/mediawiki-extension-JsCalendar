@@ -49,8 +49,8 @@ $wgExtensionMessagesFiles['EventCalendar'] = $dir . 'EventCalendar.i18n.php';
 // JavaScript and CSS resources
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    'scripts' => array('fullcalendar/lib/moment.min.js', 'fullcalendar/fullcalendar/fullcalendar.min.js', 'ext.yasec.core.js'),
-    'styles' => array('fullcalendar/fullcalendar/fullcalendar.css', 'ext.yasec.css'),
+    'scripts' => array( 'fullcalendar/lib/moment.min.js', 'fullcalendar/fullcalendar/fullcalendar.min.js', 'ext.yasec.core.js' ),
+    'styles' => array( 'fullcalendar/fullcalendar/fullcalendar.css', 'ext.yasec.css' ),
 
     // When your module is loaded, these messages will be available through mw.msg().
     // E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
@@ -59,7 +59,7 @@ $wgResourceModules['ext.yasec'] = array(
     // If your scripts need code from other modules, list their identifiers as dependencies
     // and ResourceLoader will make sure they're loaded before you.
     // You don't need to manually list 'mediawiki' or 'jquery', which are always loaded.
-    'dependencies' => array('jquery.ui.datepicker'),
+    'dependencies' => array( 'jquery.ui.datepicker' ),
 
     // You need to declare the base path of the file paths in 'scripts' and 'styles'
     'localBasePath' => __DIR__ . '/resources',
@@ -77,16 +77,12 @@ function wfEventCalendarOnBeforePageDisplay(&$out, &$skin) {
 }
 */
 
-# Configuration variables. Warning: These use DLP instead of DPL
-# for historical reasons (pretend Dynamic list of pages)
-// $wgDLPmaxCategories = 6;                // Maximum number of categories to look for
-// $wgDLPMaxResultCount = 200;             // Maximum number of results to allow
-// $wgDLPAllowUnlimitedResults = false;    // Allow unlimited results
-// $wgDLPAllowUnlimitedCategories = false; // Allow unlimited categories
+// Configuration variables
+
 // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
 // false to not decrease cache time (most efficient), Set to 0 to disable
 // cache altogether (inefficient, but results will never be outdated)
-// $wgDLPMaxCacheTime = 60*60*24;          // How long to cache pages
+$wgECMaxCacheTime = 60*60*24;          // How long to cache pages
 
 $wgHooks['ParserFirstCallInit'][] = 'wfEventCalendar';
 /**
@@ -95,34 +91,95 @@ $wgHooks['ParserFirstCallInit'][] = 'wfEventCalendar';
  * @param $parser Object: instance of Parser
  * @return Boolean: true
  */
-function wfEventCalendar(&$parser) {
-    $parser->setHook('EventCalendar', 'renderEventCalendar');
+function wfEventCalendar( &$parser ) {
+    $parser->setHook( 'EventCalendar', 'renderEventCalendar' );
     return true;
 }
 
-function renderEventCalendar($input, $args, $mwParser) {
-    $mwParser->disableCache();
-    $mwParser->getOutput()->addModules('ext.yasec');
-
-    global $yasecCounter;
-    $yasecCounter += 1;
-
-    return '<script>window.yasec = ' . (212 + $yasecCounter) . ';</script>' .
-        '<div id="cal1" style="max-width: 800px;"><strong>{EventCalendarrr' . $yasecCounter . '}</strong></div>';
-}
-
-/*
 // The callback function for converting the input text to HTML output
-function renderDynamicPageList( $input, $args, $mwParser ) {
-    global $wgContLang;
-    global $wgDisableCounters; // to determine if to allow sorting by #hits.
-    global $wgDLPmaxCategories, $wgDLPMaxResultCount, $wgDLPMaxCacheTime;
-    global $wgDLPAllowUnlimitedResults, $wgDLPAllowUnlimitedCategories;
+function renderEventCalendar( $input, $args, $mwParser ) {
+    // config variables
+    global $wgECMaxCacheTime;
 
-    if ( $wgDLPMaxCacheTime !== false ) {
-        $mwParser->getOutput()->updateCacheExpiry( $wgDLPMaxCacheTime );
+    global $wgContLang;
+    global $wgECCounter; // instantiation counter
+    $wgECCounter += 1;
+
+    $mwParser->getOutput()->addModules( 'ext.yasec' );
+
+    // return '<script>window.yasec = ' . (212 + $wgECCounter) . ';</script>' .
+    //     '<div id="cal1" style="max-width: 800px;"><strong>{EventCalendarrr' . $yasecCounter . '}</strong></div>';
+
+    if ( $wgECMaxCacheTime !== false ) {
+        $mwParser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
     }
 
+    // defaults
+    $aspectRatio = 1.6;
+    $namespaceIndex = 0;
+
+    $parameters = explode( "\n", $input );
+
+    foreach ( $parameters as $parameter ) {
+        $paramField = explode( '=', $parameter, 2 );
+        if( count( $paramField ) < 2 ) {
+            continue;
+        }
+        $type = trim( $paramField[0] );
+        $arg = trim( $paramField[1] );
+        switch ( $type ) {
+            case 'aspectratio':
+                $aspectRatio = floatval( $arg );
+                break;
+            case 'namespace':
+                $ns = $wgContLang->getNsIndex( $arg );
+                if ( $ns != null ) {
+                    $namespaceIndex = $ns;
+                }
+                break;
+        } // end main switch()
+    } // end foreach()
+
+    // build the SQL query
+    $dbr = wfGetDB( DB_SLAVE );
+    $tables = array( 'page' );
+    $fields = array( 'page_namespace', 'page_title' );
+    $where = array();
+    $options = array();
+
+    $where['page_namespace'] = $namespaceIndex;
+
+    // TODO rename Events to Event
+    // TODO require page title to start with a date
+
+    $options['ORDER BY'] = 'page_title DESC';
+
+    // process the query
+    $res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
+
+    // calendar container and data array
+    $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
+        "<script>\n" .
+        "if (!window.eventCalendarData) { window.eventCalendarData = []; }\n" .
+        "window.eventCalendarData.push([\n";
+
+    // process results of query, outputting a JS data structure
+    foreach ( $res as $row ) {
+        $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
+        $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
+        $output .= "{ title: '{$title}', start: '{$date}' },";
+    }
+
+    // end array push
+    $output .= "]);\n" .
+        "</script>\n";
+
+    return array( $output, 'markerType' => 'nowiki' );
+}
+
+
+
+    /*
     $countSet = false;
 
     $startList = '<ul>';

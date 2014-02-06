@@ -1,3 +1,7 @@
+div.fc {
+    max-width: 800px;
+}
+
 .fc h2 {
     border-bottom: none;
 }
