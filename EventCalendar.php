@@ -163,18 +163,18 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     foreach ( $res as $row ) {
         $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
         $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
-        if ( !$eventmap[$title] ) {
+        if ( !array_key_exists( $title, $eventmap )) {
             $eventmap[$title] = array();
         }
         /*
             if ( $eventmap[$title].last belongs_to $date ) {
                 adjust start date
             } else { */
-        array_push( $eventmap[$title], array(
+        $eventmap[$title][] = array(
             'title' => $title,
             'start' => $date,
             'end' => $date,
-        ));
+        );
             // }
     }
 
