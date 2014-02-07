@@ -153,9 +153,41 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     // TODO rename Events to Event
 
     $options['ORDER BY'] = 'page_title DESC';
+    $options['LIMIT'] = 5000; // should limit output volume to about 300 KiB
+                              // assuming 60 bytes per entry
 
     // process the query
     $res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
+
+    $eventmap = array();
+    foreach ( $res as $row ) {
+        $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
+        $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
+        if ( !$eventmap[$title] ) {
+            $eventmap[$title] = array();
+        }
+        /*
+            if ( $eventmap[$title].last belongs_to $date ) {
+                adjust start date
+            } else { */
+        array_push( $eventmap[$title], array(
+            'title' => $title,
+            'start' => $date,
+            'end' => $date,
+        ));
+            // }
+    }
+
+    $events = array();
+    foreach ( $eventmap as $entries ) {
+        $events = array_merge( $events, $entries );
+    }
+
+    /*
+     * 1. inject date codes from array into hash
+     * 2. iterate array, check hash for event with same title on next day(s)
+     * 3. if found, remove from hash, modify entry of first date to include last date
+     */
 
     // calendar container and data array
     $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
@@ -164,14 +196,18 @@ function renderEventCalendar( $input, $args, $mwParser ) {
         "window.eventCalendarData.push([\n";
 
     // process results of query, outputting a JS data structure
+    /*
     foreach ( $res as $row ) {
         $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
         $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
         $output .= "{ title: '{$title}', start: '{$date}' },";
     }
+    */
 
     // end array push
     $output .= "]);\n" .
+        "/* eventmap: " . json_encode( $eventmap ) . " */\n" .
+        "/* events: " . json_encode( $events ) . " */\n" .
         "</script>\n";
 
     return array( $output, 'markerType' => 'nowiki' );
