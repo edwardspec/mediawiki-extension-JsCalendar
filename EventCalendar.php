@@ -168,15 +168,15 @@ function renderEventCalendar( $input, $args, $mwParser ) {
             $eventmap[$title] = array();
         }
 
+        // minimal interval is one day
+        $tempdate = date_create( $date );
+        date_add( $tempdate, date_interval_create_from_date_string( '1 day' ));
+        $enddate = date_format( $tempdate, 'Y-m-d' );
+
         // look for events with same name on consecutive days
-        $enddate = $date;
         $last = array_pop( $eventmap[$title] );
         if ( $last !== NULL ) {
-            $tempdate = date_create( $date );
-            date_add( $tempdate, date_interval_create_from_date_string( '1 day' ));
-            $datenext = date_format( $tempdate, 'Y-m-d' );
-
-            if ( $last['start'] == $datenext ) {
+            if ( $last['start'] == $enddate ) {
                 // conflate multi-day event
                 $enddate = $last['end'];
             } else {
