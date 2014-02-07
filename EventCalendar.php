@@ -143,14 +143,14 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     // build the SQL query
     $dbr = wfGetDB( DB_SLAVE );
     $tables = array( 'page' );
-    $fields = array( 'page_namespace', 'page_title' );
+    $fields = array( 'page_title' );
     $where = array();
     $options = array();
 
     $where['page_namespace'] = $namespaceIndex;
+    array_push( $where, "page_title REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'" );
 
     // TODO rename Events to Event
-    // TODO require page title to start with a date
 
     $options['ORDER BY'] = 'page_title DESC';
 
