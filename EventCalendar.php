@@ -148,7 +148,7 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     $options = array();
 
     $where['page_namespace'] = $namespaceIndex;
-    array_push( $where, "page_title REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'" );
+    $where[] = "page_title REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'";
 
     // TODO rename Events to Event
 
@@ -163,37 +163,46 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     foreach ( $res as $row ) {
         $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
         $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
+
         if ( !array_key_exists( $title, $eventmap )) {
             $eventmap[$title] = array();
         }
-        /*
-            if ( $eventmap[$title].last belongs_to $date ) {
-                adjust start date
-            } else { */
+
+        // look for events with same name on consecutive days
+        $enddate = $date;
+        $last = array_pop( $eventmap[$title] );
+        if ( $last !== NULL ) {
+            $tempdate = date_create( $date );
+            date_add( $tempdate, date_interval_create_from_date_string( '1 day' ));
+            $datenext = date_format( $tempdate, 'Y-m-d' );
+
+            if ( $last['start'] == $datenext ) {
+                // conflate multi-day event
+                $enddate = $last['end'];
+            } else {
+                // no match, keep last event
+                $eventmap[$title][] = $last;
+            }
+        }
+
         $eventmap[$title][] = array(
             'title' => $title,
             'start' => $date,
-            'end' => $date,
+            'end' => $enddate,
         );
-            // }
     }
 
+    // concatenate all events to single list
     $events = array();
     foreach ( $eventmap as $entries ) {
         $events = array_merge( $events, $entries );
     }
 
-    /*
-     * 1. inject date codes from array into hash
-     * 2. iterate array, check hash for event with same title on next day(s)
-     * 3. if found, remove from hash, modify entry of first date to include last date
-     */
-
     // calendar container and data array
     $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
         "<script>\n" .
         "if (!window.eventCalendarData) { window.eventCalendarData = []; }\n" .
-        "window.eventCalendarData.push([\n";
+        "window.eventCalendarData.push(";
 
     // process results of query, outputting a JS data structure
     /*
@@ -204,8 +213,10 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     }
     */
 
+    $output .= json_encode( $events );
+
     // end array push
-    $output .= "]);\n" .
+    $output .= ");\n" .
         "/* eventmap: " . json_encode( $eventmap ) . " */\n" .
         "/* events: " . json_encode( $events ) . " */\n" .
         "</script>\n";
