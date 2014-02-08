@@ -36,7 +36,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['parserhook'][] = array(
     'path'        => __FILE__,
     'name'        => 'EventCalendar',
-    'version'     => '0.1.0',
+    'version'     => '0.2.0',
     'description' => 'Yet Another Simple Event Calendar',
     'url'         => 'https://github.com/improper/mediawiki-extensions-yasec',
     'author'      => 'Steffen Beyer and others',
