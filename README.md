@@ -33,11 +33,11 @@ To install, add following to LocalSettings.php
 Typical invocation on a page:
 
     <EventCalendar>
-    namespace = Recipe
+    namespace = Event
     aspectratio = 1.35
     </EventCalendar>
 
-`aspectratio` is optional and defaults to 1.6. `max-width` is set to
+`aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to
 800px and can be overridden in `MediaWiki:Common.css`.
 
   [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
