@@ -95,9 +95,6 @@ function renderEventCalendar( $input, $args, $mwParser ) {
 
     $mwParser->getOutput()->addModules( 'ext.yasec' );
 
-    // return '<script>window.yasec = ' . (212 + $wgECCounter) . ';</script>' .
-    //     '<div id="cal1" style="max-width: 800px;"><strong>{EventCalendarrr' . $yasecCounter . '}</strong></div>';
-
     if ( $wgECMaxCacheTime !== false ) {
         $mwParser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
     }
