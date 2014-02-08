@@ -69,14 +69,6 @@ $wgResourceModules['ext.yasec'] = array(
     'remoteExtPath' => 'yasec/resources'
 );
 
-/*
-$wgHooks['BeforePageDisplay'][] = 'wfEventCalendarOnBeforePageDisplay';
-
-function wfEventCalendarOnBeforePageDisplay(&$out, &$skin) {
-    $out->addModules('ext.yasec');
-}
-*/
-
 // Configuration variables
 
 // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
@@ -150,8 +142,6 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     $where['page_namespace'] = $namespaceIndex;
     $where[] = "page_title REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'";
 
-    // TODO rename Events to Event
-
     $options['ORDER BY'] = 'page_title DESC';
     $options['LIMIT'] = 5000; // should limit output volume to about 300 KiB
                               // assuming 60 bytes per entry
@@ -163,6 +153,7 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     foreach ( $res as $row ) {
         $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
         $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
+        $url = Title::makeTitle( $namespaceIndex, $row->page_title )->getLinkURL();
 
         if ( !array_key_exists( $title, $eventmap )) {
             $eventmap[$title] = array();
@@ -189,6 +180,7 @@ function renderEventCalendar( $input, $args, $mwParser ) {
             'title' => $title,
             'start' => $date,
             'end' => $enddate,
+            'url' => $url,
         );
     }
 
@@ -204,21 +196,10 @@ function renderEventCalendar( $input, $args, $mwParser ) {
         "if (!window.eventCalendarData) { window.eventCalendarData = []; }\n" .
         "window.eventCalendarData.push(";
 
-    // process results of query, outputting a JS data structure
-    /*
-    foreach ( $res as $row ) {
-        $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
-        $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
-        $output .= "{ title: '{$title}', start: '{$date}' },";
-    }
-    */
-
     $output .= json_encode( $events );
 
     // end array push
     $output .= ");\n" .
-        "/* eventmap: " . json_encode( $eventmap ) . " */\n" .
-        "/* events: " . json_encode( $events ) . " */\n" .
         "</script>\n";
 
     return array( $output, 'markerType' => 'nowiki' );

@@ -5,3 +5,7 @@ div.fc {
 .fc h2 {
     border-bottom: none;
 }
+
+.fc .fc-event-container a, .fc .fc-event-container a:hover, .fc .fc-event-container a:visited {
+    color: white;
+}
