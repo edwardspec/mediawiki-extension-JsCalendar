@@ -42,10 +42,6 @@ $wgExtensionCredits['parserhook'][] = array(
     'author'      => 'Steffen Beyer and others',
 );
 
-// Internationalization file
-$dir = __DIR__ . '/';
-$wgExtensionMessagesFiles['EventCalendar'] = $dir . 'EventCalendar.i18n.php';
-
 // JavaScript and CSS resources
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
