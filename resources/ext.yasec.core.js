@@ -1,4 +1,6 @@
-$("#eventcalendar-1").fullCalendar({
-    aspectRatio: 1.6,
-    events: window.eventCalendarData[0]
-});
+for (var i = 0; i < window.eventCalendarData.length; i++) {
+    $("#eventcalendar-" + (i + 1)).fullCalendar({
+        aspectRatio: window.eventCalendarAspectRatio[i],
+        events: window.eventCalendarData[i]
+    });
+}

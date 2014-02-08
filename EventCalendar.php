@@ -189,6 +189,8 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     // calendar container and data array
     $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
         "<script>\n" .
+        "if (!window.eventCalendarAspectRatio) { window.eventCalendarAspectRatio = []; }\n" .
+        "window.eventCalendarAspectRatio.push(" . $aspectRatio . ");\n" .
         "if (!window.eventCalendarData) { window.eventCalendarData = []; }\n" .
         "window.eventCalendarData.push(";
 
