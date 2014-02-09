@@ -187,14 +187,9 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
         "<script>\n" .
         "if (!window.eventCalendarAspectRatio) { window.eventCalendarAspectRatio = []; }\n" .
-        "window.eventCalendarAspectRatio.push(" . $aspectRatio . ");\n" .
+        "window.eventCalendarAspectRatio.push({$aspectRatio});\n" .
         "if (!window.eventCalendarData) { window.eventCalendarData = []; }\n" .
-        "window.eventCalendarData.push(";
-
-    $output .= json_encode( $events );
-
-    // end array push
-    $output .= ");\n" .
+        "window.eventCalendarData.push(" . json_encode( $events ) . ");\n" .
         "</script>\n";
 
     return array( $output, 'markerType' => 'nowiki' );
