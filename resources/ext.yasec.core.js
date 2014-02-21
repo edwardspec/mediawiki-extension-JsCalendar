@@ -10,7 +10,7 @@ jQuery( document ).ready( function( $ ) {
             ( function( i ) {
                 window.setTimeout( function() { 
                     $( "#eventcalendar-" + ( i + 1 )).fullCalendar( 'render' );
-                }, 2500 );
+                }, 1500 );
             })( i );
         }
     }
