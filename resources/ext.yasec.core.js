@@ -1,5 +1,5 @@
 jQuery( document ).ready( function( $ ) {
-    if ( window.eventCalendarData !== undefined ) {
+    if ( typeof window.eventCalendarData === 'object' ) {
         for ( var i = 0; i < window.eventCalendarData.length; i++ ) {
             $( "#eventcalendar-" + ( i + 1 )).fullCalendar({
                 aspectRatio: window.eventCalendarAspectRatio[i],
