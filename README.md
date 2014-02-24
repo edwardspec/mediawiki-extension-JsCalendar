@@ -28,10 +28,6 @@ same title, like
 
 where the second and following pages will usually redirect to the first.
 
-To install, add following to LocalSettings.php
-
-    include("$IP/extensions/yasec/EventCalendar.php");
-
 Typical invocation on a page:
 
     <EventCalendar>
