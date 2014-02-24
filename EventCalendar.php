@@ -69,12 +69,15 @@ $wgResourceModules['ext.yasec'] = array(
     'remoteExtPath' => 'yasec/resources'
 );
 
-// Configuration variables
 
-// How long to cache pages using DPL's in seconds. Default to 1 day. Set to
-// false to not decrease cache time (most efficient), Set to 0 to disable
-// cache altogether (inefficient, but results will never be outdated)
-$wgECMaxCacheTime = 60*60*24;          // How long to cache pages
+// Configuration variables (change in LocalSettings.php)
+
+# How long to cache pages using EventCalendar in seconds. Default to 1 day.
+# Set to false to use the normal amount of page caching (most efficient),
+# set to 0 to disable cache altogether (inefficient, but results will never
+# be outdated)
+$wgECMaxCacheTime = 60*60*24;   // How long to cache pages in seconds
+
 
 $wgHooks['ParserFirstCallInit'][] = 'wfEventCalendar';
 /**
