@@ -51,28 +51,35 @@ Typical invocation on a page:
 ### Installation
 
 1. Deploy the files to `extensions/yasec`.
-2. Setup your namespace in `LocalSettings.php`:
+2. Edit your `LocalSettings.php`:
+    * Load the extension:
 
-   ```php
-   $wgExtraNamespaces = array(
-       100 => "Event",
-       101 => "Event_talk",
-   );
-   $wgNamespacesToBeSearchedDefault = array(
-       NS_MAIN => true,
-       100     => true,
-   );
-   ```
+      ```php
+      include("$IP/extensions/yasec/EventCalendar.php");
+      ```
 
-3. For testing you might want to disable the cache, also in
-   `LocalSettings.php`:
+    * Setup your namespace in `LocalSettings.php`:
 
-   ```php
-   // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
-   // false to not decrease cache time (most efficient), Set to 0 to disable
-   // cache altogether (inefficient, but results will never be outdated)
-   $wgECMaxCacheTime = 60*60*24;          // How long to cache pages
-   ```
+      ```php
+      $wgExtraNamespaces = array(
+          100 => "Event",
+          101 => "Event_talk",
+      );
+      $wgNamespacesToBeSearchedDefault = array(
+          NS_MAIN => true,
+          100     => true,
+      );
+      ```
+
+    * For testing you might want to disable the cache, also in
+      `LocalSettings.php`:
+
+      ```php
+      // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
+      // false to not decrease cache time (most efficient), Set to 0 to disable
+      // cache altogether (inefficient, but results will never be outdated)
+      $wgECMaxCacheTime = 60*60*24;          // How long to cache pages
+      ```
 
   [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
   [2]: http://arshaw.com/fullcalendar/

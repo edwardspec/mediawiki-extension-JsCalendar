@@ -7,9 +7,6 @@
  Outputs a tabular calendar filled with events automatically generated
  from page titles in a certain namespace. Based on the intersection extension.
 
- To install, add following to LocalSettings.php
-   include("$IP/extensions/yasec/EventCalendar.php");
-
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
