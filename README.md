@@ -58,7 +58,7 @@ Typical invocation on a page:
       include("$IP/extensions/yasec/EventCalendar.php");
       ```
 
-    * Setup your namespace in `LocalSettings.php`:
+    * Setup your namespace:
 
       ```php
       $wgExtraNamespaces = array(
@@ -71,8 +71,7 @@ Typical invocation on a page:
       );
       ```
 
-    * For testing you might want to disable the cache, also in
-      `LocalSettings.php`:
+    * For testing you might want to disable the cache:
 
       ```php
       // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
