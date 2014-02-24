@@ -45,8 +45,15 @@ $wgExtensionCredits['parserhook'][] = array(
 // JavaScript and CSS resources
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    'scripts' => array( 'fullcalendar/lib/moment.min.js', 'fullcalendar/fullcalendar/fullcalendar.min.js', 'ext.yasec.core.js' ),
-    'styles' => array( 'fullcalendar/fullcalendar/fullcalendar.css', 'ext.yasec.css' ),
+    'scripts' => array(
+        'fullcalendar/lib/moment.min.js',
+        'fullcalendar/fullcalendar/fullcalendar.min.js',
+        'ext.yasec.core.js',
+    ),
+    'styles' => array(
+        'fullcalendar/fullcalendar/fullcalendar.css',
+        'ext.yasec.css',
+    ),
 
     // When your module is loaded, these messages will be available through mw.msg().
     // E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
