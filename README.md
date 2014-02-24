@@ -46,30 +46,35 @@ Typical invocation on a page:
 
 * MediaWiki 1.22 (will probably work with other versions, comments
   appreciated)
-* MySQL (see #1)
+* MySQL (see [#1][4])
 
 ### Installation
 
 1. Deploy the files to `extensions/yasec`.
 2. Setup your namespace in `LocalSettings.php`:
 
-       $wgExtraNamespaces = array(
-           100 => "Event",
-           101 => "Event_talk",
-       );
-       $wgNamespacesToBeSearchedDefault = array(
-           NS_MAIN => true,
-           100     => true,
-       );
+   ```php
+   $wgExtraNamespaces = array(
+       100 => "Event",
+       101 => "Event_talk",
+   );
+   $wgNamespacesToBeSearchedDefault = array(
+       NS_MAIN => true,
+       100     => true,
+   );
+   ```
 
 3. For testing you might want to disable the cache, also in
    `LocalSettings.php`:
 
-       // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
-       // false to not decrease cache time (most efficient), Set to 0 to disable
-       // cache altogether (inefficient, but results will never be outdated)
-       $wgECMaxCacheTime = 60*60*24;          // How long to cache pages
+   ```php
+   // How long to cache pages using DPL's in seconds. Default to 1 day. Set to
+   // false to not decrease cache time (most efficient), Set to 0 to disable
+   // cache altogether (inefficient, but results will never be outdated)
+   $wgECMaxCacheTime = 60*60*24;          // How long to cache pages
+   ```
 
   [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
   [2]: http://arshaw.com/fullcalendar/
   [3]: https://foodhackingbase.org/wiki/Events
+  [4]: https://github.com/improper/mediawiki-extensions-yasec/issues/1
