@@ -139,8 +139,9 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     $where = array();
     $options = array();
 
+    $where['page_namespace'] = $namespaceIndex;
+
     if ( ! $dbr instanceof DatabaseSqlite ) {
-        $where['page_namespace'] = $namespaceIndex;
 
         if ( $dbr instanceof DatabasePostgres ) {
             $regexp_op = '~';
