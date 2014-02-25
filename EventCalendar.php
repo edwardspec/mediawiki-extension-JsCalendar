@@ -7,9 +7,6 @@
  Outputs a tabular calendar filled with events automatically generated
  from page titles in a certain namespace. Based on the intersection extension.
 
- To install, add following to LocalSettings.php
-   include("$IP/extensions/yasec/EventCalendar.php");
-
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,8 +42,15 @@ $wgExtensionCredits['parserhook'][] = array(
 // JavaScript and CSS resources
 $wgResourceModules['ext.yasec'] = array(
     // JavaScript and CSS styles. To combine multiple files, just list them as an array.
-    'scripts' => array( 'fullcalendar/lib/moment.min.js', 'fullcalendar/fullcalendar/fullcalendar.min.js', 'ext.yasec.core.js' ),
-    'styles' => array( 'fullcalendar/fullcalendar/fullcalendar.css', 'ext.yasec.css' ),
+    'scripts' => array(
+        'fullcalendar/lib/moment.min.js',
+        'fullcalendar/fullcalendar/fullcalendar.min.js',
+        'ext.yasec.core.js',
+    ),
+    'styles' => array(
+        'fullcalendar/fullcalendar/fullcalendar.css',
+        'ext.yasec.css',
+    ),
 
     // When your module is loaded, these messages will be available through mw.msg().
     // E.g. in JavaScript you can access them with mw.message( 'myextension-hello-world' ).text()
@@ -65,12 +69,15 @@ $wgResourceModules['ext.yasec'] = array(
     'remoteExtPath' => 'yasec/resources'
 );
 
-// Configuration variables
 
-// How long to cache pages using DPL's in seconds. Default to 1 day. Set to
-// false to not decrease cache time (most efficient), Set to 0 to disable
-// cache altogether (inefficient, but results will never be outdated)
-$wgECMaxCacheTime = 60*60*24;          // How long to cache pages
+// Configuration variables (change in LocalSettings.php)
+
+# How long to cache pages using EventCalendar in seconds. Default to 1 day.
+# Set to false to use the normal amount of page caching (most efficient),
+# set to 0 to disable cache altogether (inefficient, but results will never
+# be outdated)
+$wgECMaxCacheTime = 60*60*24;   // How long to cache pages in seconds
+
 
 $wgHooks['ParserFirstCallInit'][] = 'wfEventCalendar';
 /**
@@ -203,9 +210,9 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     // calendar container and data array
     $output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
         "<script>\n" .
-        "if ( !window.eventCalendarAspectRatio ) { window.eventCalendarAspectRatio = []; }\n" .
+        "if ( typeof window.eventCalendarAspectRatio !== 'object' ) { window.eventCalendarAspectRatio = []; }\n" .
         "window.eventCalendarAspectRatio.push( {$aspectRatio} );\n" .
-        "if ( !window.eventCalendarData ) { window.eventCalendarData = []; }\n" .
+        "if ( typeof window.eventCalendarData !== 'object' ) { window.eventCalendarData = []; }\n" .
         "window.eventCalendarData.push( " . json_encode( $events ) . " );\n" .
         "</script>\n";
 

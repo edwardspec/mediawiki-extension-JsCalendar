@@ -8,6 +8,8 @@ and the [FullCalendar jQuery plugin][2].
 
 Demo: [FoodHackingBase Events][3]
 
+### Usage
+
 EventCalendar expects page titles in the following format in a certain
 namespace:
 
@@ -26,10 +28,6 @@ same title, like
 
 where the second and following pages will usually redirect to the first.
 
-To install, add following to LocalSettings.php
-
-    include("$IP/extensions/yasec/EventCalendar.php");
-
 Typical invocation on a page:
 
     <EventCalendar>
@@ -40,6 +38,46 @@ Typical invocation on a page:
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to
 800px and can be overridden in `MediaWiki:Common.css`.
 
+### Requirements
+
+* MediaWiki 1.22 (will probably work with other versions, comments
+  appreciated)
+* MySQL (see [#1][4])
+
+### Installation
+
+1. Deploy the files to `extensions/yasec`.
+2. Edit your `LocalSettings.php`:
+    * Load the extension:
+
+      ```php
+      include("$IP/extensions/yasec/EventCalendar.php");
+      ```
+
+    * Setup your namespace:
+
+      ```php
+      $wgExtraNamespaces = array(
+          100 => "Event",
+          101 => "Event_talk",
+      );
+      $wgNamespacesToBeSearchedDefault = array(
+          NS_MAIN => true,
+          100     => true,
+      );
+      ```
+
+    * For testing you might want to disable the cache:
+
+      ```php
+      # How long to cache pages using EventCalendar in seconds. Default to 1 day.
+      # Set to false to use the normal amount of page caching (most efficient),
+      # set to 0 to disable cache altogether (inefficient, but results will never
+      # be outdated)
+      $wgECMaxCacheTime = 60*60*24;   // How long to cache pages in seconds
+      ```
+
   [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
   [2]: http://arshaw.com/fullcalendar/
   [3]: https://foodhackingbase.org/wiki/Events
+  [4]: https://github.com/improper/mediawiki-extensions-yasec/issues/1

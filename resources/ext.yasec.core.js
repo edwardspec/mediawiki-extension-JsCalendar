@@ -1,6 +1,7 @@
 jQuery( document ).ready( function( $ ) {
-    if ( window.eventCalendarData !== undefined ) {
+    if ( typeof window.eventCalendarData === 'object' ) {
         for ( var i = 0; i < window.eventCalendarData.length; i++ ) {
+            // render calendar
             $( "#eventcalendar-" + ( i + 1 )).fullCalendar({
                 aspectRatio: window.eventCalendarAspectRatio[i],
                 events: window.eventCalendarData[i]
@@ -10,7 +11,7 @@ jQuery( document ).ready( function( $ ) {
             ( function( i ) {
                 window.setTimeout( function() { 
                     $( "#eventcalendar-" + ( i + 1 )).fullCalendar( 'render' );
-                }, 2500 );
+                }, 0 );
             })( i );
         }
     }
