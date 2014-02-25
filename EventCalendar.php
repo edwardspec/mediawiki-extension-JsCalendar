@@ -141,6 +141,8 @@ function renderEventCalendar( $input, $args, $mwParser ) {
 
     $where['page_namespace'] = $namespaceIndex;
 
+    $title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
+
     if ( ! $dbr instanceof DatabaseSqlite ) {
 
         if ( $dbr instanceof DatabasePostgres ) {
@@ -149,7 +151,7 @@ function renderEventCalendar( $input, $args, $mwParser ) {
             $regexp_op = 'REGEXP';
         }
 
-        $where[] = "page_title " . $regexp_op . " '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'";
+        $where[] = "page_title " . $regexp_op . " '" . $title_pattern . "'";
     }
 
     $options['ORDER BY'] = 'page_title DESC';
@@ -163,7 +165,7 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     foreach ( $res as $row ) {
 
         if ( $dbr instanceof DatabaseSqlite ) {
-            if( ! preg_match('@^[0-9]{4}/[0-9]{2}/[0-9]{2}_.*@', $row->page_title)) {
+            if( ! preg_match("@" . $title_pattern . "@", $row->page_title)) {
                 continue;  // Ignoring page titles that don't follow the 
                            // pattern of event pages
             } 
