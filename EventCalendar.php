@@ -140,7 +140,19 @@ function renderEventCalendar( $input, $args, $mwParser ) {
     $options = array();
 
     $where['page_namespace'] = $namespaceIndex;
-    $where[] = "page_title REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]'";
+
+    $title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
+
+    if ( ! $dbr instanceof DatabaseSqlite ) {
+
+        if ( $dbr instanceof DatabasePostgres ) {
+            $regexp_op = '~';
+        } else {
+            $regexp_op = 'REGEXP';
+        }
+
+        $where[] = "page_title " . $regexp_op . " '" . $title_pattern . "'";
+    }
 
     $options['ORDER BY'] = 'page_title DESC';
     $options['LIMIT'] = 5000; // should limit output volume to about 300 KiB
@@ -151,6 +163,14 @@ function renderEventCalendar( $input, $args, $mwParser ) {
 
     $eventmap = array();
     foreach ( $res as $row ) {
+
+        if ( $dbr instanceof DatabaseSqlite ) {
+            if( ! preg_match("@" . $title_pattern . "@", $row->page_title)) {
+                continue;  // Ignoring page titles that don't follow the 
+                           // pattern of event pages
+            } 
+        }
+
         $date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
         $title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
         $url = Title::makeTitle( $namespaceIndex, $row->page_title )->getLinkURL();
