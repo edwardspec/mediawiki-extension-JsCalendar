@@ -32,11 +32,11 @@ use Title;
 class EventCalendar {
 
 	/**
-	* Set up the <EventCalendar> tag.
-	*
-	* @param $parser Object: instance of Parser
-	* @return Boolean: true
-	*/
+	 * Set up the <EventCalendar> tag.
+	 *
+	 * @param $parser Object: instance of Parser
+	 * @return Boolean true
+	 */
 	public static function onParserFirstCallInit( &$parser ) {
 		$parser->setHook( 'EventCalendar', 'MediaWiki\JsCalendar\EventCalendar::renderEventCalendar' );
 		return true;
@@ -65,7 +65,7 @@ class EventCalendar {
 
 		foreach ( $parameters as $parameter ) {
 			$paramField = explode( '=', $parameter, 2 );
-			if( count( $paramField ) < 2 ) {
+			if ( count( $paramField ) < 2 ) {
 				continue;
 			}
 			$type = trim( $paramField[0] );
@@ -85,16 +85,16 @@ class EventCalendar {
 
 		// build the SQL query
 		$dbr = wfGetDB( DB_REPLICA );
-		$tables = array( 'page' );
-		$fields = array( 'page_title' );
-		$where = array();
-		$options = array();
+		$tables = [ 'page' ];
+		$fields = [ 'page_title' ];
+		$where = [];
+		$options = [];
 
 		$where['page_namespace'] = $namespaceIndex;
 
 		$title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
 
-		if ( ! $dbr instanceof DatabaseSqlite ) {
+		if ( !$dbr instanceof DatabaseSqlite ) {
 
 			if ( $dbr instanceof DatabasePostgres ) {
 				$regexp_op = '~';
@@ -112,50 +112,50 @@ class EventCalendar {
 		// process the query
 		$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
 
-		$eventmap = array();
+		$eventmap = [];
 		foreach ( $res as $row ) {
 			if ( $dbr instanceof DatabaseSqlite ) {
-				if( ! preg_match("@" . $title_pattern . "@", $row->page_title)) {
+				if ( !preg_match( "@" . $title_pattern . "@", $row->page_title ) ) {
 					continue;  // Ignoring page titles that don't follow the
 						// pattern of event pages
 				}
 			}
 
-			$date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ));
-			$title = str_replace( '_', ' ', substr( $row->page_title, 11 ));
+			$date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ) );
+			$title = str_replace( '_', ' ', substr( $row->page_title, 11 ) );
 			$url = Title::makeTitle( $namespaceIndex, $row->page_title )->getLinkURL();
 
-			if ( !array_key_exists( $title, $eventmap )) {
-				$eventmap[$title] = array();
+			if ( !array_key_exists( $title, $eventmap ) ) {
+				$eventmap[$title] = [];
 			}
 
 			// minimal interval is one day
 			$tempdate = date_create( $date );
-			date_add( $tempdate, date_interval_create_from_date_string( '1 day' ));
+			date_add( $tempdate, date_interval_create_from_date_string( '1 day' ) );
 			$enddate = date_format( $tempdate, 'Y-m-d' );
 
 			// look for events with same name on consecutive days
 			$last = array_pop( $eventmap[$title] );
-			if ( $last !== NULL ) {
+			if ( $last !== null ) {
 			if ( $last['start'] == $enddate ) {
 					// conflate multi-day event
 					$enddate = $last['end'];
-				} else {
+			} else {
 					// no match, keep last event
 					$eventmap[$title][] = $last;
-				}
+			}
 			}
 
-			$eventmap[$title][] = array(
+			$eventmap[$title][] = [
 				'title' => $title,
 				'start' => $date,
 				'end' => $enddate,
 				'url' => $url,
-			);
+			];
 		}
 
 		// concatenate all events to single list
-		$events = array();
+		$events = [];
 		foreach ( $eventmap as $entries ) {
 			$events = array_merge( $events, $entries );
 		}
@@ -169,6 +169,6 @@ class EventCalendar {
 			"window.eventCalendarData.push( " . json_encode( $events ) . " );\n" .
 			"</script>\n";
 
-		return array( $output, 'markerType' => 'nowiki' );
+		return [ $output, 'markerType' => 'nowiki' ];
 	}
 }
