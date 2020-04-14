@@ -27,11 +27,19 @@
 
 namespace MediaWiki\JsCalendar;
 
+use FormatJson;
+use Html;
 use MediaWiki\MediaWikiServices;
 use Parser;
 use Title;
 
 class EventCalendar {
+
+	/**
+	 * @var int
+	 * For multiple calendars on the same page: they will be named Calendar1, Calendar2, etc.
+	 */
+	protected static $calendarsCounter = 0;
 
 	/**
 	 * Set up the <EventCalendar> tag.
@@ -54,8 +62,6 @@ class EventCalendar {
 	public static function renderEventCalendar( $input, $args, Parser $mwParser ) {
 		// config variables
 		global $wgECMaxCacheTime;
-		global $wgECCounter; // instantiation counter
-		$wgECCounter += 1;
 
 		$mwParser->getOutput()->addModules( 'ext.yasec' );
 
@@ -167,16 +173,17 @@ class EventCalendar {
 		}
 
 		// calendar container and data array
-		// @phan-suppress-next-line SecurityCheck-XSS - false positive, all variables have sanitized data
-		$output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
-			"<script>\n" .
-			"if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
+		$scriptHtml = "if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
 			"{ window.eventCalendarAspectRatio = []; }\n" .
-			"window.eventCalendarAspectRatio.push( {$aspectRatio} );\n" .
+			"window.eventCalendarAspectRatio.push( " . floatval( $aspectRatio ) . ");\n" .
 			"if ( typeof window.eventCalendarData !== 'object' ) { window.eventCalendarData = []; }\n" .
-			"window.eventCalendarData.push( " . json_encode( $events ) . " );\n" .
-			"</script>\n";
+			"window.eventCalendarData.push( " . FormatJson::encode( $events ) . " );\n";
 
-		return [ $output, 'markerType' => 'nowiki' ];
+		$resultHtml = Html::element( 'div', [
+			'id' => 'eventcalendar-' . ( ++ self::$calendarsCounter )
+		] );
+		$resultHtml .= Html::rawElement( 'script', [], $scriptHtml );
+
+		return [ $resultHtml, 'markerType' => 'nowiki' ];
 	}
 }
