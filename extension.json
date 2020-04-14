@@ -29,10 +29,11 @@
 		"remoteExtPath": "yasec/resources"
 	},
 	"AutoloadClasses": {
-		"MediaWiki\\JsCalendar\\EventCalendar": "includes/EventCalendar.php"
+		"MediaWiki\\JsCalendar\\EventCalendar": "includes/EventCalendar.php",
+		"MediaWiki\\JsCalendar\\Hooks": "includes/Hooks.php"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": "MediaWiki\\JsCalendar\\EventCalendar::onParserFirstCallInit"
+		"ParserFirstCallInit": "MediaWiki\\JsCalendar\\Hooks::onParserFirstCallInit"
 	},
 	"config": {
 		"ECMaxCacheTime": {

@@ -42,58 +42,12 @@ class EventCalendar {
 	protected static $calendarsCounter = 0;
 
 	/**
-	 * Set up the <EventCalendar> tag.
-	 *
-	 * @param Parser $parser
-	 * @return true
+	 * Calculate an array of events in the format expected by JavaScript side of the calendar.
+	 * @param array $opt Parameters obtained from contents of <eventcalendar> tag.
+	 * @return array
 	 */
-	public static function onParserFirstCallInit( Parser $parser ) {
-		$parser->setHook( 'EventCalendar', 'MediaWiki\JsCalendar\EventCalendar::renderEventCalendar' );
-		return true;
-	}
-
-	/**
-	 * The callback function for converting the input text to HTML output
-	 * @param string $input
-	 * @param array $args
-	 * @param Parser $mwParser
-	 * @return array|string
-	 */
-	public static function renderEventCalendar( $input, $args, Parser $mwParser ) {
-		// config variables
-		global $wgECMaxCacheTime;
-
-		$mwParser->getOutput()->addModules( 'ext.yasec' );
-
-		if ( $wgECMaxCacheTime !== false ) {
-			$mwParser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
-		}
-
-		// defaults
-		$aspectRatio = 1.6;
-		$namespaceIndex = 0;
-
-		$parameters = explode( "\n", $input );
-
-		foreach ( $parameters as $parameter ) {
-			$paramField = explode( '=', $parameter, 2 );
-			if ( count( $paramField ) < 2 ) {
-				continue;
-			}
-			$type = trim( $paramField[0] );
-			$arg = trim( $paramField[1] );
-			switch ( $type ) {
-				case 'aspectratio':
-					$aspectRatio = floatval( $arg );
-					break;
-				case 'namespace':
-					$ns = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $arg );
-					if ( $ns != null ) {
-						$namespaceIndex = $ns;
-					}
-					break;
-			} // end main switch()
-		} // end foreach()
+	public static function findEvents( array $opt ) {
+		$namespaceIdx = $opt['namespace'] ?? NS_MAIN;
 
 		// build the SQL query
 		$dbr = wfGetDB( DB_REPLICA );
@@ -102,7 +56,7 @@ class EventCalendar {
 		$where = [];
 		$options = [];
 
-		$where['page_namespace'] = $namespaceIndex;
+		$where['page_namespace'] = $namespaceIdx;
 
 		$title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
 
@@ -135,7 +89,7 @@ class EventCalendar {
 
 			$date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ) );
 			$title = str_replace( '_', ' ', substr( $row->page_title, 11 ) );
-			$url = Title::makeTitle( $namespaceIndex, $row->page_title )->getLinkURL();
+			$url = Title::makeTitle( $namespaceIdx, $row->page_title )->getLinkURL();
 
 			if ( !array_key_exists( $title, $eventmap ) ) {
 				$eventmap[$title] = [];
@@ -172,10 +126,53 @@ class EventCalendar {
 			$events = array_merge( $events, $entries );
 		}
 
+		return $events;
+	}
+
+	/**
+	 * The callback function for converting the input text to HTML output
+	 * @param string $input
+	 * @param mixed $_
+	 * @param Parser $mwParser
+	 * @return array|string
+	 */
+	public static function renderEventCalendar( $input, $_, Parser $mwParser ) {
+		// config variables
+		global $wgECMaxCacheTime;
+
+		$mwParser->getOutput()->addModules( 'ext.yasec' );
+
+		if ( $wgECMaxCacheTime !== false ) {
+			$mwParser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
+		}
+
+		// Parse the contents of the tag ($input string) for parameters.
+		$options = [];
+		$lines = explode( "\n", $input );
+		foreach ( $lines as $param ) {
+			$keyval = explode( '=', $param, 2 );
+			if ( count( $keyval ) < 2 ) {
+				continue;
+			}
+
+			$key = trim( $keyval[0] );
+			$val = trim( $keyval[1] );
+
+			if ( $key == 'aspectratio' ) {
+				$val = floatval( $val );
+			} elseif ( $key == 'namespace' ) {
+				$val = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $val );
+			}
+
+			$options[$key] = $val;
+		}
+
+		$events = self::findEvents( array_filter( $options ) );
+
 		// calendar container and data array
 		$scriptHtml = "if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
 			"{ window.eventCalendarAspectRatio = []; }\n" .
-			"window.eventCalendarAspectRatio.push( " . floatval( $aspectRatio ) . ");\n" .
+			"window.eventCalendarAspectRatio.push( " . floatval( $options['aspectratio'] ?? 1.6 ) . ");\n" .
 			"if ( typeof window.eventCalendarData !== 'object' ) { window.eventCalendarData = []; }\n" .
 			"window.eventCalendarData.push( " . FormatJson::encode( $events ) . " );\n";
 
