@@ -167,6 +167,7 @@ class EventCalendar {
 		}
 
 		// calendar container and data array
+		// @phan-suppress-next-line SecurityCheck-XSS - false positive, all variables have sanitized data
 		$output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
 			"<script>\n" .
 			"if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
