@@ -28,6 +28,7 @@
 namespace MediaWiki\JsCalendar;
 
 use MediaWiki\MediaWikiServices;
+use Parser;
 use Title;
 
 class EventCalendar {
@@ -38,7 +39,7 @@ class EventCalendar {
 	 * @param Parser $parser
 	 * @return true
 	 */
-	public static function onParserFirstCallInit( $parser ) {
+	public static function onParserFirstCallInit( Parser $parser ) {
 		$parser->setHook( 'EventCalendar', 'MediaWiki\JsCalendar\EventCalendar::renderEventCalendar' );
 		return true;
 	}
@@ -50,7 +51,7 @@ class EventCalendar {
 	 * @param Parser $mwParser
 	 * @return array|string
 	 */
-	public static function renderEventCalendar( $input, $args, $mwParser ) {
+	public static function renderEventCalendar( $input, $args, Parser $mwParser ) {
 		// config variables
 		global $wgECMaxCacheTime;
 		global $wgECCounter; // instantiation counter
@@ -99,9 +100,9 @@ class EventCalendar {
 
 		$title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
 
-		if ( !$dbr instanceof DatabaseSqlite ) {
+		if ( $dbr->getType() != 'sqlite' ) {
 
-			if ( $dbr instanceof DatabasePostgres ) {
+			if ( $dbr->getType() == 'postgres' ) {
 				$regexp_op = '~';
 			} else {
 				$regexp_op = 'REGEXP';
@@ -119,7 +120,7 @@ class EventCalendar {
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
-			if ( $dbr instanceof DatabaseSqlite ) {
+			if ( $dbr->getType() == 'sqlite' ) {
 				if ( !preg_match( "@" . $title_pattern . "@", $row->page_title ) ) {
 					continue;  // Ignoring page titles that don't follow the
 						// pattern of event pages
