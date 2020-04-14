@@ -27,6 +27,7 @@
 
 namespace MediaWiki\JsCalendar;
 
+use MediaWiki\MediaWikiServices;
 use Title;
 
 class EventCalendar {
@@ -34,20 +35,24 @@ class EventCalendar {
 	/**
 	 * Set up the <EventCalendar> tag.
 	 *
-	 * @param $parser Object: instance of Parser
-	 * @return Boolean true
+	 * @param Parser $parser
+	 * @return true
 	 */
-	public static function onParserFirstCallInit( &$parser ) {
+	public static function onParserFirstCallInit( $parser ) {
 		$parser->setHook( 'EventCalendar', 'MediaWiki\JsCalendar\EventCalendar::renderEventCalendar' );
 		return true;
 	}
 
-	// The callback function for converting the input text to HTML output
+	/**
+	 * The callback function for converting the input text to HTML output
+	 * @param string $input
+	 * @param array $args
+	 * @param Parser $mwParser
+	 * @return array|string
+	 */
 	public static function renderEventCalendar( $input, $args, $mwParser ) {
 		// config variables
 		global $wgECMaxCacheTime;
-
-		global $wgContLang;
 		global $wgECCounter; // instantiation counter
 		$wgECCounter += 1;
 
@@ -75,7 +80,7 @@ class EventCalendar {
 					$aspectRatio = floatval( $arg );
 					break;
 				case 'namespace':
-					$ns = $wgContLang->getNsIndex( $arg );
+					$ns = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $arg );
 					if ( $ns != null ) {
 						$namespaceIndex = $ns;
 					}
@@ -137,13 +142,13 @@ class EventCalendar {
 			// look for events with same name on consecutive days
 			$last = array_pop( $eventmap[$title] );
 			if ( $last !== null ) {
-			if ( $last['start'] == $enddate ) {
+				if ( $last['start'] == $enddate ) {
 					// conflate multi-day event
 					$enddate = $last['end'];
-			} else {
+				} else {
 					// no match, keep last event
 					$eventmap[$title][] = $last;
-			}
+				}
 			}
 
 			$eventmap[$title][] = [
@@ -163,7 +168,8 @@ class EventCalendar {
 		// calendar container and data array
 		$output = "<div id=\"eventcalendar-{$wgECCounter}\"></div>\n" .
 			"<script>\n" .
-			"if ( typeof window.eventCalendarAspectRatio !== 'object' ) { window.eventCalendarAspectRatio = []; }\n" .
+			"if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
+			"{ window.eventCalendarAspectRatio = []; }\n" .
 			"window.eventCalendarAspectRatio.push( {$aspectRatio} );\n" .
 			"if ( typeof window.eventCalendarData !== 'object' ) { window.eventCalendarData = []; }\n" .
 			"window.eventCalendarData.push( " . json_encode( $events ) . " );\n" .
