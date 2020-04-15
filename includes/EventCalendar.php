@@ -97,7 +97,7 @@ class EventCalendar {
 			$enddate = $dateTime->format( 'Y-m-d' );
 
 			$title = Title::makeTitle( $namespaceIdx, $row->page_title );
-			$pageName = $title->getFullText();
+			$pageName = $title->getText(); // Without namespace
 			$url = $title->getLinkURL();
 
 			if ( !array_key_exists( $pageName, $eventmap ) ) {
@@ -116,12 +116,23 @@ class EventCalendar {
 				}
 			}
 
-			$eventmap[$pageName][] = [
+			// TODO
+			$color = null;
+
+			// Form the EventObject descriptor (as expected by JavaScript library),
+			// see [resources/fullcalendar/changelog.txt]
+			$eventObject = [
 				'title' => $pageName,
 				'start' => $startdate,
 				'end' => $enddate,
 				'url' => $url,
+				'color' => $color ?? '#3a87ad'
 			];
+			if ( $color ) {
+				$eventObject['color'] = $color;
+			}
+
+			$eventmap[$pageName][] = $eventObject;
 		}
 
 		// concatenate all events to single list
