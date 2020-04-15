@@ -1,6 +1,7 @@
-## Yet Another Simple Event Calendar
+## JsCalendar
 
-https://github.com/improper/mediawiki-extensions-yasec
+NOTE: this is based on another extension: https://github.com/improper/mediawiki-extensions-yasec
+... but doesn't aim to maintain backward compatibility with it.
 
 Outputs a tabular calendar filled with events automatically generated
 from page titles in a certain namespace. Based on the [intersection extension][1]
@@ -10,48 +11,33 @@ Demo: [FoodHackingBase Events][3]
 
 ### Usage
 
-EventCalendar expects page titles in the following format in a certain
-namespace:
-
-    yyyy/mm/dd Event Title
-
-for example
-
-    Event:2014/02/14_Synchronous_Hackathon
-
-Multi-day events can be created by setting up consecutive dates with the
-same title, like
-
-    Event:2014/02/14_Synchronous_Hackathon
-    Event:2014/02/15_Synchronous_Hackathon
-    Event:2014/02/16_Synchronous_Hackathon
-
-where the second and following pages will usually redirect to the first.
-
-Typical invocation on a page:
+Assuming that event pages are called `Event:Today_in_History/April,_12` (where Event is a namespace), the following wikitext will display a calendar of these events:
 
     <EventCalendar>
     namespace = Event
     aspectratio = 1.35
+    prefix = Today_in_History/
+    suffix = 
+    dateFormat = F_j
     </EventCalendar>
+    
+... here F_j is the format from https://www.php.net/manual/ru/datetime.createfromformat.php - "F" means "name of month", and "j" means "day (with leading zero)".
 
-`aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to
-800px and can be overridden in `MediaWiki:Common.css`.
+`aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
 
 ### Requirements
 
-* MediaWiki 1.22 (will probably work with other versions, comments
-  appreciated)
-* MySQL (see [#1][4])
+* MediaWiki 1.34
+* MySQL (not tested with other databases).
 
 ### Installation
 
-1. Deploy the files to `extensions/yasec`.
+1. Deploy the files to `extensions/JsCalendar`.
 2. Edit your `LocalSettings.php`:
     * Load the extension:
 
       ```php
-      include("$IP/extensions/yasec/EventCalendar.php");
+      wfLoadExtension( 'JsCalendar' );
       ```
 
     * Setup your namespace:
@@ -80,4 +66,4 @@ Typical invocation on a page:
   [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
   [2]: http://arshaw.com/fullcalendar/
   [3]: https://foodhackingbase.org/wiki/Events
-  [4]: https://github.com/improper/mediawiki-extensions-yasec/issues/1
+  
