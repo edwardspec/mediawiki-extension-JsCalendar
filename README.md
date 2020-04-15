@@ -25,6 +25,14 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
 
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
 
+#### Category-based coloring
+
+The following parameters within `<EventCalendar>` will change the color of events to red/green based on the category into which the Event: page is included.
+Pages not included into any listed categories would have default color.
+
+    categorycolor.Cat-related events = red
+    categorycolor.Dogs = green
+
 ### Requirements
 
 * MediaWiki 1.34

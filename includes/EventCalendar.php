@@ -58,9 +58,10 @@ class EventCalendar {
 		// build the SQL query
 		$dbr = wfGetDB( DB_REPLICA );
 		$tables = [ 'page' ];
-		$fields = [ 'page_title' ];
+		$fields = [ 'page_title AS title' ];
 		$where = [];
 		$options = [];
+		$joinConds = [];
 
 		$where['page_namespace'] = $namespaceIdx;
 
@@ -72,13 +73,42 @@ class EventCalendar {
 		$defaultLimit = 5000;
 		$options['LIMIT'] = $opt['limit'] ?? $defaultLimit;
 
+		// Find "categorycolor.<SOMETHING>" keys in $opt.
+		// If found, then determine whether each of selected pages is included into those categories.
+		$coloredCategories = []; // E.g. [ 'Dogs', 'Big_cats', ... ]
+		foreach ( $opt as $key => $val ) {
+			$matches = null;
+			if ( preg_match( '/^categorycolor\.(.+)$/', $key, $matches ) ) {
+				$categoryName = strtr( $matches[1], ' ', '_' );
+				$coloredCategories[$categoryName] = $val;
+			}
+		}
+
+		$options['GROUP BY'] = [ 'page_title' ];
+
+		if ( $coloredCategories ) {
+			$tables[] = 'categorylinks';
+			$fields[] = 'cl_to AS category';
+			$joinConds['categorylinks'] = [
+				'LEFT JOIN',
+				[
+					'cl_from=page_id',
+					'cl_to' => array_keys( $coloredCategories )
+				]
+			];
+
+			// If the page belongs to 2+ colored categories only one of them will affect the color.
+			// Currently we don't care which category's color will be applied.
+			$options['GROUP BY'][] = 'cl_to';
+		}
+
 		// process the query
-		$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
+		$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options, $joinConds );
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
 			// Try to find the date in $pageName by removing $prefix and $suffix.
-			$dbKey = $row->page_title;
+			$dbKey = $row->title;
 			$dateString = substr( $dbKey, strlen( $prefix ),
 				strlen( $dbKey ) - strlen( $prefix ) - strlen( $suffix ) );
 
@@ -96,7 +126,7 @@ class EventCalendar {
 			$dateTime->modify( '+1 day' );
 			$enddate = $dateTime->format( 'Y-m-d' );
 
-			$title = Title::makeTitle( $namespaceIdx, $row->page_title );
+			$title = Title::makeTitle( $namespaceIdx, $row->title );
 			$pageName = $title->getText(); // Without namespace
 			$url = $title->getLinkURL();
 
@@ -116,18 +146,21 @@ class EventCalendar {
 				}
 			}
 
-			// TODO
-			$color = null;
+			$textToDisplay = $pageName;
+
+			// TODO: add full text of the page (or rather N first symbols).
+			// TODO: do this in a way that won't impact performance.
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
 			// see [resources/fullcalendar/changelog.txt]
 			$eventObject = [
-				'title' => $pageName,
+				'title' => $textToDisplay,
 				'start' => $startdate,
 				'end' => $enddate,
-				'url' => $url,
-				'color' => $color ?? '#3a87ad'
+				'url' => $url
 			];
+
+			$color = $coloredCategories[$row->category];
 			if ( $color ) {
 				$eventObject['color'] = $color;
 			}
