@@ -27,6 +27,7 @@
 
 namespace MediaWiki\JsCalendar;
 
+use DateTime;
 use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
@@ -48,6 +49,11 @@ class EventCalendar {
 	 */
 	public static function findEvents( array $opt ) {
 		$namespaceIdx = $opt['namespace'] ?? NS_MAIN;
+		$prefix = $opt['prefix'] ?? '';
+		$suffix = $opt['suffix'] ?? '';
+
+		$dateFormat = $opt['dateFormat'] ?? 'Y/m/d';
+		$limit = $opt['limit'] ?? 500;
 
 		// build the SQL query
 		$dbr = wfGetDB( DB_REPLICA );
@@ -58,63 +64,61 @@ class EventCalendar {
 
 		$where['page_namespace'] = $namespaceIdx;
 
-		$title_pattern = '^[0-9]{4}/[0-9]{2}/[0-9]{2}_[[:alnum:]]';
-
-		if ( $dbr->getType() != 'sqlite' ) {
-
-			if ( $dbr->getType() == 'postgres' ) {
-				$regexp_op = '~';
-			} else {
-				$regexp_op = 'REGEXP';
-			}
-
-			$where[] = "page_title " . $regexp_op . " '" . $title_pattern . "'";
+		if ( $prefix || $suffix ) {
+			$where[] = 'page_title ' . $dbr->buildLike( $prefix, $dbr->anyString(), $suffix );
 		}
 
-		$options['ORDER BY'] = 'page_title DESC';
-		$options['LIMIT'] = 5000; // should limit output volume to about 300 KiB
-					// assuming 60 bytes per entry
+		// 5000 should limit output volume to about 300 KiB assuming 60 bytes per entry.
+		$defaultLimit = 5000;
+		$options['LIMIT'] = $opt['limit'] ?? $defaultLimit;
 
 		// process the query
 		$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options );
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
-			if ( $dbr->getType() == 'sqlite' ) {
-				if ( !preg_match( "@" . $title_pattern . "@", $row->page_title ) ) {
-					continue;  // Ignoring page titles that don't follow the
-						// pattern of event pages
-				}
+			// Try to find the date in $pageName by removing $prefix and $suffix.
+			$dbKey = $row->page_title;
+			$dateString = substr( $dbKey, strlen( $prefix ),
+				strlen( $dbKey ) - strlen( $prefix ) - strlen( $suffix ) );
+
+			// Try to parse the date.
+			// For example, pages like "Conferences/05_April_2010" will need dateFormat=d/F/Y.
+			// See https://www.php.net/manual/ru/datetime.createfromformat.php
+			$dateTime = DateTime::createFromFormat( $dateFormat, $dateString );
+			if ( !$dateTime ) {
+				// Couldn't parse the date (not in correct dateFormat), so ignore this page.
+				continue;
 			}
 
-			$date = str_replace( '/', '-', substr( $row->page_title, 0, 10 ) );
-			$title = str_replace( '_', ' ', substr( $row->page_title, 11 ) );
-			$url = Title::makeTitle( $namespaceIdx, $row->page_title )->getLinkURL();
+			$startdate = $dateTime->format( 'Y-m-d' );
 
-			if ( !array_key_exists( $title, $eventmap ) ) {
-				$eventmap[$title] = [];
+			$dateTime->modify( '+1 day' );
+			$enddate = $dateTime->format( 'Y-m-d' );
+
+			$title = Title::makeTitle( $namespaceIdx, $row->page_title );
+			$pageName = $title->getFullText();
+			$url = $title->getLinkURL();
+
+			if ( !array_key_exists( $pageName, $eventmap ) ) {
+				$eventmap[$pageName] = [];
 			}
-
-			// minimal interval is one day
-			$tempdate = date_create( $date );
-			date_add( $tempdate, date_interval_create_from_date_string( '1 day' ) );
-			$enddate = date_format( $tempdate, 'Y-m-d' );
 
 			// look for events with same name on consecutive days
-			$last = array_pop( $eventmap[$title] );
+			$last = array_pop( $eventmap[$pageName] );
 			if ( $last !== null ) {
 				if ( $last['start'] == $enddate ) {
 					// conflate multi-day event
 					$enddate = $last['end'];
 				} else {
 					// no match, keep last event
-					$eventmap[$title][] = $last;
+					$eventmap[$pageName][] = $last;
 				}
 			}
 
-			$eventmap[$title][] = [
-				'title' => $title,
-				'start' => $date,
+			$eventmap[$pageName][] = [
+				'title' => $pageName,
+				'start' => $startdate,
 				'end' => $enddate,
 				'url' => $url,
 			];
