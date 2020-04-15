@@ -37,7 +37,18 @@ class Hooks {
 	 * @return true
 	 */
 	public static function onParserFirstCallInit( Parser $parser ) {
-		$parser->setHook( 'EventCalendar', '\MediaWiki\JsCalendar\EventCalendar::renderEventCalendar' );
+		$parser->setHook( 'EventCalendar', '\MediaWiki\JsCalendar\Hooks::parserFunction' );
 		return true;
+	}
+
+	/**
+	 * The callback function for converting the input text to HTML output
+	 * @param string $input
+	 * @param mixed $args
+	 * @param Parser $parser
+	 * @return array|string
+	 */
+	public static function parserFunction( $input, $args, Parser $parser ) {
+		return EventCalendar::renderEventCalendar( $input, $parser );
 	}
 }

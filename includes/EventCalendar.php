@@ -136,11 +136,10 @@ class EventCalendar {
 	/**
 	 * The callback function for converting the input text to HTML output
 	 * @param string $input
-	 * @param mixed $_
 	 * @param Parser $mwParser
 	 * @return array|string
 	 */
-	public static function renderEventCalendar( $input, $_, Parser $mwParser ) {
+	public static function renderEventCalendar( $input, Parser $mwParser ) {
 		// config variables
 		global $wgECMaxCacheTime;
 
