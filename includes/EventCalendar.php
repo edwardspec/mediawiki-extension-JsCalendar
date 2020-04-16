@@ -31,11 +31,10 @@ use DateTime;
 use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\SlotRecord;
 use Parser;
 use Sanitizer;
-use TextContent;
 use Title;
-use WikiPage;
 
 class EventCalendar {
 
@@ -75,7 +74,8 @@ class EventCalendar {
 
 		// 5000 should limit output volume to about 300 KiB assuming 60 bytes per entry.
 		$defaultLimit = 5000;
-		$options['LIMIT'] = $opt['limit'] ?? $defaultLimit;
+		$maxLimit = 5000;
+		$options['LIMIT'] = min( intval( $opt['limit'] ?? $defaultLimit ), $maxLimit );
 
 		// Find "categorycolor.<SOMETHING>" keys in $opt.
 		// If found, then determine whether each of selected pages is included into those categories.
@@ -104,6 +104,44 @@ class EventCalendar {
 			// If the page belongs to 2+ colored categories only one of them will affect the color.
 			// Currently we don't care which category's color will be applied.
 			$options['GROUP BY'][] = 'cl_to';
+		}
+
+		// If symbols=N parameter is present, additionally load full text of each event page.
+		$maxSymbols = intval( $opt['symbols'] ?? 0 );
+		if ( $maxSymbols > 0 ) {
+			$tables[] = 'revision';
+			$tables[] = 'slot_roles';
+			$tables[] = 'slots';
+			$tables[] = 'content';
+			$tables[] = 'text';
+			$fields[] = 'old_text AS text';
+
+			$joinConds['revision'] = [
+				'INNER JOIN',
+				[ 'rev_id=page_latest' ]
+			];
+			$joinConds['slot_roles'] = [
+				'INNER JOIN',
+				[ 'role_name' => SlotRecord::MAIN ]
+			];
+			$joinConds['slots'] = [
+				'INNER JOIN',
+				[
+					'slot_revision_id=rev_id',
+					'slot_role_id=role_id'
+				]
+			];
+			$joinConds['content'] = [
+				'INNER JOIN',
+				[
+					'content_id=slot_content_id',
+					'content_address ' . $dbr->buildLike( 'tt:', $dbr->anyString() )
+				]
+			];
+			$joinConds['text'] = [
+				'INNER JOIN',
+				[ 'old_id=SUBSTR(content_address,4)' ] // Strip tt: suffix from content_address
+			];
 		}
 
 		// process the query
@@ -152,20 +190,14 @@ class EventCalendar {
 
 			// By default we display the page name as event name.
 			$textToDisplay = $pageName;
-
-			$maxSymbols = intval( $opt['symbols'] ?? 0 );
 			if ( $maxSymbols > 0 ) {
 				// Full text of the page (no more than N first symbols) was requested.
-				// NOTE: we rely on ParserCache for performance. (because many pages get parsed for 1 calendar)
 				// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
-				$page = WikiPage::factory( $title );
-				$content = $page->getContent();
-				if ( $content && $content instanceof TextContent ) {
-					$parsedHtml = $recursiveParser->recursiveTagParse( $content->getText() );
-					$parsedText = Sanitizer::stripAllTags( $parsedHtml );
+				// TODO: cache the results.
+				$parsedHtml = $recursiveParser->recursiveTagParse( $row->text );
+				$parsedText = Sanitizer::stripAllTags( $parsedHtml );
 
-					$textToDisplay = mb_substr( $parsedText, 0, $maxSymbols );
-				}
+				$textToDisplay = mb_substr( $parsedText, 0, $maxSymbols );
 			}
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
@@ -177,7 +209,7 @@ class EventCalendar {
 				'url' => $url
 			];
 
-			$color = $coloredCategories[$row->category];
+			$color = $coloredCategories[$row->category] ?? null;
 			if ( $color ) {
 				$eventObject['color'] = $color;
 			}
