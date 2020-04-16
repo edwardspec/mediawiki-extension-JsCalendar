@@ -32,7 +32,10 @@ use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
 use Parser;
+use Sanitizer;
+use TextContent;
 use Title;
+use WikiPage;
 
 class EventCalendar {
 
@@ -45,9 +48,10 @@ class EventCalendar {
 	/**
 	 * Calculate an array of events in the format expected by JavaScript side of the calendar.
 	 * @param array $opt Parameters obtained from contents of <eventcalendar> tag.
+	 * @param Parser $recursiveParser Parser object that is being used to render <EventCalendar>.
 	 * @return array
 	 */
-	public static function findEvents( array $opt ) {
+	public static function findEvents( array $opt, Parser $recursiveParser ) {
 		$namespaceIdx = $opt['namespace'] ?? NS_MAIN;
 		$prefix = $opt['prefix'] ?? '';
 		$suffix = $opt['suffix'] ?? '';
@@ -146,10 +150,23 @@ class EventCalendar {
 				}
 			}
 
+			// By default we display the page name as event name.
 			$textToDisplay = $pageName;
 
-			// TODO: add full text of the page (or rather N first symbols).
-			// TODO: do this in a way that won't impact performance.
+			$maxSymbols = intval( $opt['symbols'] ?? 0 );
+			if ( $maxSymbols > 0 ) {
+				// Full text of the page (no more than N first symbols) was requested.
+				// NOTE: we rely on ParserCache for performance. (because many pages get parsed for 1 calendar)
+				// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
+				$page = WikiPage::factory( $title );
+				$content = $page->getContent();
+				if ( $content && $content instanceof TextContent ) {
+					$parsedHtml = $recursiveParser->recursiveTagParse( $content->getText() );
+					$parsedText = Sanitizer::stripAllTags( $parsedHtml );
+
+					$textToDisplay = mb_substr( $parsedText, 0, $maxSymbols );
+				}
+			}
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
 			// see [resources/fullcalendar/changelog.txt]
@@ -180,17 +197,17 @@ class EventCalendar {
 	/**
 	 * The callback function for converting the input text to HTML output
 	 * @param string $input
-	 * @param Parser $mwParser
+	 * @param Parser $parser
 	 * @return array|string
 	 */
-	public static function renderEventCalendar( $input, Parser $mwParser ) {
+	public static function renderEventCalendar( $input, Parser $parser ) {
 		// config variables
 		global $wgECMaxCacheTime;
 
-		$mwParser->getOutput()->addModules( 'ext.yasec' );
+		$parser->getOutput()->addModules( 'ext.yasec' );
 
 		if ( $wgECMaxCacheTime !== false ) {
-			$mwParser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
+			$parser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
 		}
 
 		// Parse the contents of the tag ($input string) for parameters.
@@ -214,7 +231,7 @@ class EventCalendar {
 			$options[$key] = $val;
 		}
 
-		$events = self::findEvents( array_filter( $options ) );
+		$events = self::findEvents( array_filter( $options ), $parser );
 
 		// calendar container and data array
 		$scriptHtml = "if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
