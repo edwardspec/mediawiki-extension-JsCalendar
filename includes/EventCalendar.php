@@ -33,7 +33,6 @@ use Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use Parser;
-use Sanitizer;
 use Title;
 
 class EventCalendar {
@@ -205,10 +204,14 @@ class EventCalendar {
 				// Full text of the page (no more than N first symbols) was requested.
 				// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
 				// TODO: cache the results.
-				$parsedHtml = $recursiveParser->recursiveTagParse( $row->text );
-				$parsedText = Sanitizer::stripAllTags( $parsedHtml );
+				$parsedHtml = $recursiveParser->recursiveTagParseFully( $row->text );
 
-				$textToDisplay = mb_substr( $parsedText, 0, $maxSymbols );
+				// Remove the image tags: in 99,9% of cases they are too wide to be included into the calendar.
+				// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
+				$parsedHtml = preg_replace( '/<img[^>]+>/', '', $parsedHtml );
+
+				// TODO: remove truncated HTML tags (if any) from $parsedHtml.
+				$textToDisplay = mb_substr( $parsedHtml, 0, $maxSymbols );
 			}
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
@@ -296,6 +299,7 @@ class EventCalendar {
 			"window.eventCalendarData.push( " . FormatJson::encode( $events ) . " );\n";
 
 		$resultHtml = Html::element( 'div', [
+			'class' => 'eventcalendar',
 			'id' => 'eventcalendar-' . ( ++ self::$calendarsCounter )
 		] );
 		$resultHtml .= Html::rawElement( 'script', [], $scriptHtml );
