@@ -2,11 +2,6 @@ div.fc {
 	max-width: 800px;
 }
 
-.fc-event a {
-	/* Make links within the event easy to see. This is needed due to event font being always white */
-	text-decoration: underline;
-}
-
 .fc h2 {
 	border-bottom: none;
 }
@@ -17,4 +12,17 @@ div.fc {
 
 .fc div.thumb {
 	display: none;
+}
+
+/* Make links within the event easy to see. This is needed due to event font being always white */
+.fc-event a {
+	text-decoration: underline;
+}
+
+
+/* Limit the height of calendar cells (necessary when the snippets are too long) */
+.fc-event {
+	max-height: 150px;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
