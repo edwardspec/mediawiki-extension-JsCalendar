@@ -32,6 +32,13 @@ Pages not included into any listed categories would have default color.
 
     categorycolor.Cat-related events = red
     categorycolor.Dogs = green
+    
+#### Keyword-based coloring
+
+The following parameter within `<EventCalendar>` will change the color of event to yellow if the page contains the word "arctic" (the match is case-insensitive, so "Arctic" will work too), and to lightgreen if the page contains the word "statistically":
+
+    keywordcolor.arctic = yellow
+    keywordcolor.statistically = lightgreen
 
 ### Requirements
 

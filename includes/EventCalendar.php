@@ -79,7 +79,7 @@ class EventCalendar {
 
 		// Find "categorycolor.<SOMETHING>" keys in $opt.
 		// If found, then determine whether each of selected pages is included into those categories.
-		$coloredCategories = []; // E.g. [ 'Dogs', 'Big_cats', ... ]
+		$coloredCategories = []; // E.g. [ 'Dogs' => 'green', 'Big_cats' => 'red', ... ]
 		foreach ( $opt as $key => $val ) {
 			$matches = null;
 			if ( preg_match( '/^categorycolor\.(.+)$/', $key, $matches ) ) {
@@ -104,6 +104,17 @@ class EventCalendar {
 			// If the page belongs to 2+ colored categories only one of them will affect the color.
 			// Currently we don't care which category's color will be applied.
 			$options['GROUP BY'][] = 'cl_to';
+		}
+
+		// Find "keywordcolor.<SOMETHING>" keys in $opt.
+		// These are matched against the text of event pages.
+		$coloredKeywords = []; // E.g. [ 'statistically' => 'green', 'arctic' => 'red', ... ]
+		foreach ( $opt as $key => $val ) {
+			$matches = null;
+			if ( preg_match( '/^keywordcolor\.(.+)$/', $key, $matches ) ) {
+				$categoryName = strtr( $matches[1], ' ', '_' );
+				$coloredKeywords[$categoryName] = $val;
+			}
 		}
 
 		// If symbols=N parameter is present, additionally load full text of each event page.
@@ -209,7 +220,19 @@ class EventCalendar {
 				'url' => $url
 			];
 
+			// Determine the color. First try the category coloring.
 			$color = $coloredCategories[$row->category] ?? null;
+			if ( !$color ) {
+				// Check whether the text of the page has keywords associated with color.
+				// This is case-insensitive matching ("Arctic" and "arctic" are the same keyword).
+				foreach ( $coloredKeywords as $keyword => $keywordColor ) {
+					if ( stripos( $row->text, $keyword ) !== false ) {
+						$color = $keywordColor;
+						break;
+					}
+				}
+			}
+
 			if ( $color ) {
 				$eventObject['color'] = $color;
 			}
