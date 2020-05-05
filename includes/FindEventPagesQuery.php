@@ -88,8 +88,26 @@ class FindEventPagesQuery {
 	 * @param string $suffix
 	 */
 	public function setPrefixAndSuffix( $prefix, $suffix ) {
+		if ( !$prefix && !$suffix ) {
+			return;
+		}
+
 		$this->where[] = 'page_title ' .
 			$this->dbr->buildLike( [ $prefix, $this->dbr->anyString(), $suffix ] );
+	}
+
+	/**
+	 * Find the event pages by a regex (for RLIKE) that matches PageName of event page.
+	 * @param string $regex
+	 */
+	public function setTitleRegex( $regex ) {
+		if ( !$regex ) {
+			// Not used. Prefix and suffix are considered to be fixed strings,
+			// and everything except them is considered date.
+			return;
+		}
+
+		$this->where[] = 'page_title RLIKE ' . $this->dbr->addQuotes( $regex );
 	}
 
 	/**

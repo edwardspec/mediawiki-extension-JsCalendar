@@ -23,6 +23,17 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
     
 ... here F_j is the format from https://www.php.net/manual/ru/datetime.createfromformat.php - "F" means "name of month", and "j" means "day (with leading zero)".
 
+Everything between "prefix" and "suffix" should be a date.
+
+Alternatively, `titleRegex` parameter can be used to find event pages. For example, the following wikitext will find pages like `Event:2020/05/15_Name_of_some_event`:
+    <EventCalendar>
+    namespace = Event
+    titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])_.*
+    dateFormat = Y/m/d
+    <EventCalendar>
+    
+When using `titleRegex`, the date part (in example above - `[0-9]{4,4}/[0-9][0-9]/[0-9][0-9]`) **must be surrounded in "(" and ")" symbols** (otherwise the calendar wouldn't know "which part of the title is the date").
+
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
 
 #### Category-based coloring
@@ -43,7 +54,7 @@ The following parameter within `<EventCalendar>` will change the color of event 
 ### Requirements
 
 * MediaWiki 1.34
-* MySQL (not tested with other databases).
+* MySQL (this extension doesn't support PostgreSQL. Patches that add PostgreSQL support are very welcome, but maintainter of this extension won't be implementing this himself).
 
 ### Installation
 

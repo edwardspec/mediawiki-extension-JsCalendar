@@ -2,7 +2,6 @@
 /*
 
  Yet Another Simple Event Calendar
- https://github.com/improper/mediawiki-extensions-yasec
 
  Outputs a tabular calendar filled with events automatically generated
  from page titles in a certain namespace. Based on the intersection extension.
@@ -52,6 +51,7 @@ class EventCalendar {
 		$namespaceIdx = $opt['namespace'] ?? NS_MAIN;
 		$prefix = $opt['prefix'] ?? '';
 		$suffix = $opt['suffix'] ?? '';
+		$titleRegex = $opt['titleRegex'] ?? '';
 
 		$dateFormat = $opt['dateFormat'] ?? 'Y/m/d';
 		$limit = $opt['limit'] ?? 500;
@@ -60,11 +60,8 @@ class EventCalendar {
 
 		$query = new FindEventPagesQuery();
 		$query->setNamespace( $namespaceIdx );
-
-		if ( $prefix || $suffix ) {
-			$query->setPrefixAndSuffix( $prefix, $suffix );
-		}
-
+		$query->setPrefixAndSuffix( $prefix, $suffix );
+		$query->setTitleRegex( $titleRegex );
 		$query->setLimit( intval( $opt['limit'] ?? 0 ) );
 
 		// Find "categorycolor.<SOMETHING>" keys in $opt.
@@ -102,10 +99,31 @@ class EventCalendar {
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
-			// Try to find the date in $pageName by removing $prefix and $suffix.
+			// Try to find the date in $pageName.
 			$dbKey = $row->title;
-			$dateString = substr( $dbKey, strlen( $prefix ),
-				strlen( $dbKey ) - strlen( $prefix ) - strlen( $suffix ) );
+			$dateString = $dbKey;
+
+			if ( $prefix || $suffix ) {
+				// Remove $prefix and $suffix, which are both fixed strings surrounding the date.
+				$dateString = substr( $dateString, strlen( $prefix ),
+					strlen( $dateString ) - strlen( $prefix ) - strlen( $suffix ) );
+			}
+
+			if ( $titleRegex ) {
+				// If regex is used, date should be within the first braces symbols: between "(" and ")".
+				// Obtain it with preg_match().
+				$matches = [];
+				if ( !preg_match(
+					'/' . str_replace( '/', '\\/', $titleRegex ) . '/',
+					$dateString,
+					$matches
+				) ) {
+					// Not found.
+					continue;
+				}
+
+				$dateString = $matches[1];
+			}
 
 			// Try to parse the date.
 			// For example, pages like "Conferences/05_April_2010" will need dateFormat=d/F/Y.
