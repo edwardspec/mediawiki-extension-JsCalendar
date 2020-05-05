@@ -29,6 +29,7 @@
 		"remoteExtPath": "yasec/resources"
 	},
 	"AutoloadClasses": {
+		"MediaWiki\\JsCalendar\\FindEventPagesQuery": "includes/FindEventPagesQuery.php",
 		"MediaWiki\\JsCalendar\\EventCalendar": "includes/EventCalendar.php",
 		"MediaWiki\\JsCalendar\\Hooks": "includes/Hooks.php"
 	},

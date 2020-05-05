@@ -1,0 +1,187 @@
+<?php
+/*
+
+ Yet Another Simple Event Calendar
+
+ Outputs a tabular calendar filled with events automatically generated
+ from page titles in a certain namespace. Based on the intersection extension.
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ http://www.gnu.org/copyleft/gpl.html
+
+*/
+
+namespace MediaWiki\JsCalendar;
+
+use MediaWiki\Revision\SlotRecord;
+
+class FindEventPagesQuery {
+
+	/**
+	 * Limit of 5000 selected rows should limit output volume to about 300 KiB,
+	 * assuming 60 bytes per entry.
+	 */
+	protected const MAX_LIMIT = 5000;
+
+	/**
+	 * @var \Wikimedia\Rdbms\IDatabase
+	 */
+	protected $dbr;
+
+	/**
+	 * @var string[]
+	 */
+	protected $tables = [ 'page' ];
+
+	/**
+	 * @var string[]
+	 */
+	protected $fields = [ 'page_title AS title' ];
+
+	/**
+	 * @var array
+	 */
+	protected $where = [];
+
+	/**
+	 * @var array
+	 */
+	protected $options = [
+		'GROUP BY' => [
+			'page_title'
+		],
+		'LIMIT' => 5000
+	];
+
+	/**
+	 * @var array
+	 */
+	protected $joinConds = [];
+
+	public function __construct() {
+		$this->dbr = wfGetDB( DB_REPLICA );
+	}
+
+	/**
+	 * Restrict the namespace of event pages.
+	 * @param int $namespaceIndex
+	 */
+	public function setNamespace( $namespaceIndex ) {
+		$this->where['page_namespace'] = $namespaceIndex;
+	}
+
+	/**
+	 * Restrict the start/end of the pagename of event pages.
+	 * @param string $prefix
+	 * @param string $suffix
+	 */
+	public function setPrefixAndSuffix( $prefix, $suffix ) {
+		$this->where[] = 'page_title ' .
+			$this->dbr->buildLike( [ $prefix, $this->dbr->anyString(), $suffix ] );
+	}
+
+	/**
+	 * @param int $limit
+	 */
+	public function setLimit( $limit ) {
+		if ( $limit <= 0 ) {
+			return;
+		}
+
+		if ( $limit > self::MAX_LIMIT ) {
+			$limit = self::MAX_LIMIT;
+		}
+
+		$this->options['LIMIT'] = $limit;
+	}
+
+	/**
+	 * Select the name of category from $categoryNames to which each event page belongs (if any).
+	 * @param string[] $categoryNames
+	 */
+	public function detectCategories( array $categoryNames ) {
+		if ( !$categoryNames ) {
+			return;
+		}
+
+		$this->tables[] = 'categorylinks';
+		$this->fields[] = 'cl_to AS category';
+		$this->joinConds['categorylinks'] = [
+			'LEFT JOIN',
+			[
+				'cl_from=page_id',
+				'cl_to' => $categoryNames
+			]
+		];
+
+		// If the page belongs to 2+ colored categories only one of them will affect the color.
+		// Currently we don't care which category's color will be applied.
+		$this->options['GROUP BY'][] = 'cl_to';
+	}
+
+	/**
+	 * Enable the selection of the raw wikitext for every selected page.
+	 */
+	public function obtainWikitext() {
+		$this->tables[] = 'revision';
+		$this->tables[] = 'slot_roles';
+		$this->tables[] = 'slots';
+		$this->tables[] = 'content';
+		$this->tables[] = 'text';
+		$this->fields[] = 'old_text AS text';
+
+		$this->joinConds['revision'] = [
+			'INNER JOIN',
+			[ 'rev_id=page_latest' ]
+		];
+		$this->joinConds['slot_roles'] = [
+			'INNER JOIN',
+			[ 'role_name' => SlotRecord::MAIN ]
+		];
+		$this->joinConds['slots'] = [
+			'INNER JOIN',
+			[
+				'slot_revision_id=rev_id',
+				'slot_role_id=role_id'
+			]
+		];
+		$this->joinConds['content'] = [
+			'INNER JOIN',
+			[
+				'content_id=slot_content_id',
+				'content_address ' . $this->dbr->buildLike( [ 'tt:', $this->dbr->anyString() ] )
+			]
+		];
+		$this->joinConds['text'] = [
+			'INNER JOIN',
+			[ 'old_id=SUBSTR(content_address,4)' ] // Strip tt: suffix from content_address
+		];
+	}
+
+	/**
+	 * Actually execute the SQL query and return its result (as iterator of $row objects).
+	 * @return \Wikimedia\Rdbms\IResultWrapper
+	 */
+	public function getResult() {
+		return $this->dbr->select(
+			$this->tables,
+			$this->fields,
+			$this->where,
+			__METHOD__,
+			$this->options,
+			$this->joinConds
+		);
+	}
+}

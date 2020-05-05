@@ -31,7 +31,6 @@ use DateTime;
 use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Revision\SlotRecord;
 use Parser;
 use Title;
 
@@ -58,23 +57,15 @@ class EventCalendar {
 		$limit = $opt['limit'] ?? 500;
 
 		// build the SQL query
-		$dbr = wfGetDB( DB_REPLICA );
-		$tables = [ 'page' ];
-		$fields = [ 'page_title AS title' ];
-		$where = [];
-		$options = [];
-		$joinConds = [];
 
-		$where['page_namespace'] = $namespaceIdx;
+		$query = new FindEventPagesQuery();
+		$query->setNamespace( $namespaceIdx );
 
 		if ( $prefix || $suffix ) {
-			$where[] = 'page_title ' . $dbr->buildLike( $prefix, $dbr->anyString(), $suffix );
+			$query->setPrefixAndSuffix( $prefix, $suffix );
 		}
 
-		// 5000 should limit output volume to about 300 KiB assuming 60 bytes per entry.
-		$defaultLimit = 5000;
-		$maxLimit = 5000;
-		$options['LIMIT'] = min( intval( $opt['limit'] ?? $defaultLimit ), $maxLimit );
+		$query->setLimit( intval( $opt['limit'] ?? 0 ) );
 
 		// Find "categorycolor.<SOMETHING>" keys in $opt.
 		// If found, then determine whether each of selected pages is included into those categories.
@@ -87,23 +78,7 @@ class EventCalendar {
 			}
 		}
 
-		$options['GROUP BY'] = [ 'page_title' ];
-
-		if ( $coloredCategories ) {
-			$tables[] = 'categorylinks';
-			$fields[] = 'cl_to AS category';
-			$joinConds['categorylinks'] = [
-				'LEFT JOIN',
-				[
-					'cl_from=page_id',
-					'cl_to' => array_keys( $coloredCategories )
-				]
-			];
-
-			// If the page belongs to 2+ colored categories only one of them will affect the color.
-			// Currently we don't care which category's color will be applied.
-			$options['GROUP BY'][] = 'cl_to';
-		}
+		$query->detectCategories( array_keys( $coloredCategories ) );
 
 		// Find "keywordcolor.<SOMETHING>" keys in $opt.
 		// These are matched against the text of event pages.
@@ -119,43 +94,11 @@ class EventCalendar {
 		// If symbols=N parameter is present, additionally load full text of each event page.
 		$maxSymbols = intval( $opt['symbols'] ?? 0 );
 		if ( $maxSymbols > 0 ) {
-			$tables[] = 'revision';
-			$tables[] = 'slot_roles';
-			$tables[] = 'slots';
-			$tables[] = 'content';
-			$tables[] = 'text';
-			$fields[] = 'old_text AS text';
-
-			$joinConds['revision'] = [
-				'INNER JOIN',
-				[ 'rev_id=page_latest' ]
-			];
-			$joinConds['slot_roles'] = [
-				'INNER JOIN',
-				[ 'role_name' => SlotRecord::MAIN ]
-			];
-			$joinConds['slots'] = [
-				'INNER JOIN',
-				[
-					'slot_revision_id=rev_id',
-					'slot_role_id=role_id'
-				]
-			];
-			$joinConds['content'] = [
-				'INNER JOIN',
-				[
-					'content_id=slot_content_id',
-					'content_address ' . $dbr->buildLike( 'tt:', $dbr->anyString() )
-				]
-			];
-			$joinConds['text'] = [
-				'INNER JOIN',
-				[ 'old_id=SUBSTR(content_address,4)' ] // Strip tt: suffix from content_address
-			];
+			$query->obtainWikitext();
 		}
 
 		// process the query
-		$res = $dbr->select( $tables, $fields, $where, __METHOD__, $options, $joinConds );
+		$res = $query->getResult();
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
