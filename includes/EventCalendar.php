@@ -159,8 +159,6 @@ class EventCalendar {
 				}
 			}
 
-			// By default we display the page name as event name.
-			$textToDisplay = $pageName;
 			if ( $maxSymbols > 0 ) {
 				// Full text of the page (no more than N first symbols) was requested.
 				// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
@@ -173,12 +171,16 @@ class EventCalendar {
 
 				// TODO: remove truncated HTML tags (if any) from $parsedHtml.
 				$textToDisplay = mb_substr( $parsedHtml, 0, $maxSymbols );
+			} else {
+				// By default we display the page title as event name, but remove the date from it.
+				$textToDisplay = $pageName;
+				$textToDisplay = str_replace( $dateString, '', $textToDisplay );
 			}
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
 			// see [resources/fullcalendar/changelog.txt]
 			$eventObject = [
-				'title' => $textToDisplay,
+				'title' => trim( $textToDisplay ),
 				'start' => $startdate,
 				'end' => $enddate,
 				'url' => $url
