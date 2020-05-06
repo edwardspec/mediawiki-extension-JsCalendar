@@ -26,11 +26,12 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
 Everything between "prefix" and "suffix" should be a date.
 
 Alternatively, `titleRegex` parameter can be used to find event pages. For example, the following wikitext will find pages like `Event:2020/05/15_Name_of_some_event`:
+
     <EventCalendar>
     namespace = Event
     titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])_.*
     dateFormat = Y/m/d
-    <EventCalendar>
+    </EventCalendar>
     
 When using `titleRegex`, the date part (in example above - `[0-9]{4,4}/[0-9][0-9]/[0-9][0-9]`) **must be surrounded in "(" and ")" symbols** (otherwise the calendar wouldn't know "which part of the title is the date").
 
