@@ -1,9 +1,13 @@
 {
 	"name": "JsCalendar",
-	"version": "0.3.0-alpha",
-	"author": "Steffen Beyer and others",
-	"url": "https://github.com/improper/mediawiki-extensions-yasec",
-	"description": "Yet Another Simple Event Calendar",
+	"version": "0.3.0",
+	"author": [
+		"Edward Chernenko",
+		"Steffen Beyer"
+	],
+	"url": "https://mediawiki.org/wiki/Extension:JsCalendar",
+	"license-name": "GPL-2.0+",
+	"description": "Wikitext markup to display JavaScript calendar (based on FullCalendar)",
 	"type": "parserhook",
 	"requires": {
 		"MediaWiki": ">= 1.34.0"
