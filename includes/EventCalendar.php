@@ -175,10 +175,12 @@ class EventCalendar {
 				$textToDisplay = str_replace( $dateString, '', $textToDisplay );
 			}
 
+			$textToDisplay = trim( $textToDisplay );
+
 			// Form the EventObject descriptor (as expected by JavaScript library),
 			// see [resources/fullcalendar/changelog.txt]
 			$eventObject = [
-				'title' => trim( $textToDisplay ),
+				'title' => $textToDisplay,
 				'start' => $startdate,
 				'end' => $enddate,
 				'url' => $url
@@ -202,12 +204,35 @@ class EventCalendar {
 				$eventObject['color'] = $color;
 			}
 
-			$eventmap[$pageName][] = $eventObject;
+			// Events are grouped by $textToDisplay (event name or HTML snippet),
+			// so that multi-day events that span several consecutive days can be joined into one event.
+			$eventmap[$textToDisplay][] = $eventObject;
 		}
 
 		// concatenate all events to single list
 		$events = [];
-		foreach ( $eventmap as $entries ) {
+		foreach ( $eventmap as $eventKey => $entries ) {
+			// Sort $entries by starting date, from earliest to latest.
+			usort( $entries, function ( $event1, $event2 ) {
+				return strcmp( $event1['start'], $event2['start'] );
+			} );
+
+			// Look for events that should be joined (e.g. 21-22 May and 22-23 May becomes 21-23 May).
+			for ( $i = 0; $i < count( $entries ) - 1; $i++ ) {
+				for ( $j = $i + 1; $j < count( $entries ); $j++ ) {
+					if ( $entries[$i]['end'] != $entries[$j]['start'] ) {
+						// Event $j is not on consecutive days with the previous event.
+						break;
+					}
+
+					$entries[$i]['end'] = $entries[$j]['end'];
+					$entries[$j] = null;
+				}
+
+				// Remove events that were set to NULL (they are already merged into a previous event).
+				$entries = array_filter( $entries );
+			}
+
 			$events = array_merge( $events, $entries );
 		}
 
