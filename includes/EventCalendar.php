@@ -85,9 +85,10 @@ class EventCalendar {
 			}
 		}
 
-		// If symbols=N parameter is present, additionally load full text of each event page.
+		// If either symbols=N or "keywordcolor" parameters are present,
+		// additionally load full text of each event page.
 		$maxSymbols = intval( $opt['symbols'] ?? 0 );
-		if ( $maxSymbols > 0 ) {
+		if ( $maxSymbols > 0 || $coloredKeywords ) {
 			$query->obtainWikitext();
 		}
 
@@ -185,11 +186,12 @@ class EventCalendar {
 
 			// Determine the color. First try the category coloring.
 			$color = $coloredCategories[$row->category] ?? null;
-			if ( !$color ) {
-				// Check whether the text of the page has keywords associated with color.
+			if ( !$color && $coloredKeywords ) {
+				// Check whether the title OR text of the page have keywords associated with color.
 				// This is case-insensitive matching ("Arctic" and "arctic" are the same keyword).
+				$titleAndText = $pageName . "\n" . $row->text;
 				foreach ( $coloredKeywords as $keyword => $keywordColor ) {
-					if ( stripos( $row->text, $keyword ) !== false ) {
+					if ( stripos( $titleAndText, $keyword ) !== false ) {
 						$color = $keywordColor;
 						break;
 					}
