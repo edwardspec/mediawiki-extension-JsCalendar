@@ -46,7 +46,7 @@ class FindEventPagesQuery {
 	/**
 	 * @var string[]
 	 */
-	protected $fields = [ 'page_title AS title' ];
+	protected $fields = [ 'page_title AS title', 'page_latest AS latest' ];
 
 	/**
 	 * @var array
@@ -183,6 +183,21 @@ class FindEventPagesQuery {
 		$this->joinConds['text'] = [
 			'INNER JOIN',
 			[ 'old_id=SUBSTR(content_address,4)' ] // Strip tt: suffix from content_address
+		];
+	}
+
+	/**
+	 * Enable the selection of already generated/cached HTML snippet for every selected page.
+	 */
+	public function obtainCachedSnippet() {
+		$this->tables[] = 'objectcache';
+		$this->fields[] = 'value AS snippet';
+
+		$cachePrefix = wfGetCache( CACHE_DB )->makeKey( 'jscalendar-snippet-' );
+
+		$this->joinConds['objectcache'] = [
+			'LEFT JOIN',
+			[ 'keyname=CONCAT(' . $this->dbr->addQuotes( $cachePrefix ) . ',page_latest)' ]
 		];
 	}
 

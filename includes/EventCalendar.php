@@ -92,8 +92,16 @@ class EventCalendar {
 			$query->obtainWikitext();
 		}
 
+		if ( $maxSymbols > 0 ) {
+			$query->obtainCachedSnippet();
+		}
+
 		// process the query
 		$res = $query->getResult();
+
+		// Obtain connections to DB/cache that may or may not be used for storing snippets in cache.
+		$dbw = wfGetDB( DB_MASTER );
+		$dbCache = wfGetCache( CACHE_DB );
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
@@ -158,19 +166,33 @@ class EventCalendar {
 			}
 
 			if ( $maxSymbols > 0 ) {
-				// Full text of the page (no more than N first symbols) was requested.
-				// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
-				// TODO: cache the results.
-				$parsedHtml = $recursiveParser->recursiveTagParseFully( $row->text );
+				// Use cached HTML snippet if possible.
+				$snippet = $row->snippet;
+				if ( !$snippet ) {
+					// Full text of the page (no more than N first symbols) was requested.
+					// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
+					$parsedHtml = $recursiveParser->recursiveTagParseFully( $row->text );
 
-				// Remove the image tags: in 99,9% of cases they are too wide to be included into the calendar.
-				// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
-				$parsedHtml = preg_replace( '/<img[^>]+>/', '', $parsedHtml );
+					// Remove the image tags: in 99,9% of cases they are too wide to be included into the calendar.
+					// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
+					$parsedHtml = preg_replace( '/<img[^>]+>/', '', $parsedHtml );
+					$snippet = mb_substr( $parsedHtml, 0, $maxSymbols );
 
-				$textToDisplay = mb_substr( $parsedHtml, 0, $maxSymbols );
+					// Remove truncated HTML tags (if any).
+					$snippet = HtmlSanitizer::sanitizeHTML( $snippet );
 
-				// Remove truncated HTML tags (if any).
-				$textToDisplay = HtmlSanitizer::sanitizeHTML( $textToDisplay );
+					// Store the snippet in cache.
+					// NOTE: the reason why we don't use $dbCache->set() here is that SqlBagOStuff::set() will do
+					// both compression and serialization, and decoding this is in protected methods.
+					// We don't want all that code duplication here, so we store HTML snippet in raw form.
+					$dbw->insert( 'objectcache', [
+						'keyname' => $dbCache->makeKey( 'jscalendar-snippet-' . $row->latest ),
+						'value' => $snippet,
+						'exptime' => $dbw->timestamp( time() + 604800 ) // 7 days
+					], __METHOD__ );
+				}
+
+				$textToDisplay = $snippet;
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;

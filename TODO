@@ -1,2 +1,0 @@
-* Cache the generated HTML snippets (to avoid calling parser to hundreds of event pages).
-
