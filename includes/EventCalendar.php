@@ -229,8 +229,9 @@ class EventCalendar {
 					$entries[$j] = null;
 				}
 
-				// Remove events that were set to NULL (they are already merged into a previous event).
-				$entries = array_filter( $entries );
+				// Remove events that were set to NULL (they are already merged into a previous event)
+				// and restore indices of $entries array.
+				$entries = array_values( array_filter( $entries ) );
 			}
 
 			$events = array_merge( $events, $entries );
