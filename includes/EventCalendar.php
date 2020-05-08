@@ -167,8 +167,10 @@ class EventCalendar {
 				// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
 				$parsedHtml = preg_replace( '/<img[^>]+>/', '', $parsedHtml );
 
-				// TODO: remove truncated HTML tags (if any) from $parsedHtml.
 				$textToDisplay = mb_substr( $parsedHtml, 0, $maxSymbols );
+
+				// Remove truncated HTML tags (if any).
+				$textToDisplay = HtmlSanitizer::sanitizeHTML( $textToDisplay );
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;

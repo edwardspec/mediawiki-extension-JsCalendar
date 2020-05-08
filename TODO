@@ -1,3 +1,2 @@
-* Avoid truncated/non-closed HTML tags in snippets due to the length limit from symbols= parameter.
 * Cache the generated HTML snippets (to avoid calling parser to hundreds of event pages).
 
