@@ -8,7 +8,8 @@ jQuery( document ).ready( function( $ ) {
 		eventRender: function( eventObj, $el ) {
 			// Allow HTML in event titles.
 			$el.html( $el.text() );
-		}
+		},
+		contentHeight: 'auto'
             } );
 
             // FIXME sometimes init is called too early, it seems, so rerender to be sure

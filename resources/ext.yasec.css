@@ -26,3 +26,7 @@ div.fc {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+
+.eventcalendar .fc-basic-view .fc-body .fc-row {
+	min-height: 6em;
+}
