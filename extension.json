@@ -17,6 +17,7 @@
 			"scripts": [
 				"fullcalendar/lib/moment.min.js",
 				"fullcalendar/fullcalendar/fullcalendar.min.js",
+				"fullcalendar/fullcalendar/lang/all.js",
 				"ext.yasec.core.js"
 			],
 			"styles": [

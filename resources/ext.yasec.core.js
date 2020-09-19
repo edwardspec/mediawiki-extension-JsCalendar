@@ -9,7 +9,8 @@ jQuery( document ).ready( function( $ ) {
 			// Allow HTML in event titles.
 			$el.html( $el.text() );
 		},
-		contentHeight: 'auto'
+		contentHeight: 'auto',
+		lang: mw.config.get( 'wgUserLanguage' )
             } );
 
             // FIXME sometimes init is called too early, it seems, so rerender to be sure
