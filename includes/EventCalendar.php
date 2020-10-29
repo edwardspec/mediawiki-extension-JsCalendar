@@ -304,11 +304,13 @@ class EventCalendar {
 		$events = self::findEvents( array_filter( $options ), $parser );
 
 		// calendar container and data array
-		$scriptHtml = "if ( typeof window.eventCalendarAspectRatio !== 'object' ) " .
-			"{ window.eventCalendarAspectRatio = []; }\n" .
-			"window.eventCalendarAspectRatio.push( " . floatval( $options['aspectratio'] ?? 1.6 ) . ");\n" .
-			"if ( typeof window.eventCalendarData !== 'object' ) { window.eventCalendarData = []; }\n" .
-			"window.eventCalendarData.push( " . FormatJson::encode( $events ) . " );\n";
+		$scriptHtml = '';
+		$scriptHtml .=
+			'if ( !window.eventCalendarAspectRatio ) { window.eventCalendarAspectRatio = []; }';
+		$scriptHtml .=
+			'window.eventCalendarAspectRatio.push( ' . floatval( $options['aspectratio'] ?? 1.6 ) . ' );';
+		$scriptHtml .= 'if ( !window.eventCalendarData ) { window.eventCalendarData = []; }';
+		$scriptHtml .= 'window.eventCalendarData.push( ' . FormatJson::encode( $events ) . " );\n";
 
 		$resultHtml = Html::element( 'div', [
 			'class' => 'eventcalendar',
