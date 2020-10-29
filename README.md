@@ -18,7 +18,7 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
     aspectratio = 1.35
     prefix = Today_in_History/
     suffix = 
-    dateFormat = F_j
+    dateFormat = F,_j
     </EventCalendar>
     
 ... here F_j is the format from https://www.php.net/manual/ru/datetime.createfromformat.php - "F" means "name of month", and "j" means "day (with leading zero)".
