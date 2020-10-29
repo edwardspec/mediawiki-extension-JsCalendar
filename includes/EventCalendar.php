@@ -211,7 +211,12 @@ class EventCalendar {
 			];
 
 			// Determine the color. First try the category coloring.
-			$color = $coloredCategories[$row->category] ?? null;
+			$color = null;
+			$category = $row->category ?? null;
+			if ( $category ) {
+				$color = $coloredCategories[$row->category] ?? null;
+			}
+
 			if ( !$color && $coloredKeywords ) {
 				// Check whether the title OR text of the page have keywords associated with color.
 				// This is case-insensitive matching ("Arctic" and "arctic" are the same keyword).
