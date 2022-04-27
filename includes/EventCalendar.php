@@ -110,6 +110,7 @@ class EventCalendar {
 			// Try to find the date in $pageName.
 			$dbKey = $row->title;
 			$dateString = $dbKey;
+			$enddateString = "";
 
 			if ( $prefix || $suffix ) {
 				// Remove $prefix and $suffix, which are both fixed strings surrounding the date.
@@ -131,6 +132,16 @@ class EventCalendar {
 				}
 
 				$dateString = $matches[1];
+
+				if ( count($matches) == 3 && $matches[2] ) {
+                                        // skip first char which should be a ':'
+                                        $enddateString = ltrim($matches[2], ':');
+                                        $enddateTime = DateTime::createFromFormat( $dateFormat, $enddateString );
+                                        if ( !$enddateTime ) {
+                                                // Couldn't parse the date (not in correct dateFormat), so ignore this page.
+                                                continue;
+                                        }
+                                }
 			}
 
 			// Try to parse the date.
@@ -144,8 +155,13 @@ class EventCalendar {
 
 			$startdate = $dateTime->format( 'Y-m-d' );
 
-			$dateTime->modify( '+1 day' );
-			$enddate = $dateTime->format( 'Y-m-d' );
+			if ( $enddateString != "" ) {
+                                $enddateTime->modify( '+1 day' );
+                                $enddate = $enddateTime->format( 'Y-m-d' );
+                        } else {
+                                $dateTime->modify( '+1 day' );
+                                $enddate = $dateTime->format( 'Y-m-d' );
+                        }
 
 			$title = Title::makeTitle( $namespaceIdx, $row->title );
 			$pageName = $title->getText(); // Without namespace
@@ -198,7 +214,10 @@ class EventCalendar {
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;
-				$textToDisplay = str_replace( strtr( $dateString, '_', ' ' ), '', $textToDisplay );
+				$textToDelete = $dateString;
+				if ( $enddateString != "" ) {
+					$textToDelete .= ":" . $enddateString;  }
+				$textToDisplay = str_replace( strtr( $textToDelete, '_', ' ' ), '', $textToDisplay );
 			}
 
 			// Remove leading/trailing spaces and symbols ":" and "/" (likely separators of name/date).
@@ -315,9 +334,7 @@ class EventCalendar {
 			$key = trim( $keyval[0] );
 			$val = trim( $keyval[1] );
 
-			if ( $key == 'aspectratio' ) {
-				$val = floatval( $val );
-			} elseif ( $key == 'namespace' ) {
+			if ( $key == 'namespace' ) {
 				$val = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $val );
 			}
 
