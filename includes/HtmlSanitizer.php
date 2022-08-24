@@ -23,11 +23,11 @@
 
 namespace MediaWiki\JsCalendar;
 
-use RemexHtml\Serializer\HtmlFormatter;
-use RemexHtml\Serializer\Serializer;
-use RemexHtml\Tokenizer\Tokenizer;
-use RemexHtml\TreeBuilder\Dispatcher;
-use RemexHtml\TreeBuilder\TreeBuilder;
+use Wikimedia\RemexHtml\Serializer\HtmlFormatter;
+use Wikimedia\RemexHtml\Serializer\Serializer;
+use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
+use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
+use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
 
 class HtmlSanitizer {
 	/**
@@ -36,13 +36,22 @@ class HtmlSanitizer {
 	 * @return string
 	 */
 	public static function sanitizeHTML( $html ) {
-		$formatter = new HtmlFormatter;
-		$serializer = new Serializer( $formatter );
-		$treeBuilder = new TreeBuilder( $serializer );
-		$dispatcher = new Dispatcher( $treeBuilder );
-		$tokenizer = new Tokenizer( $dispatcher, $html );
-		$tokenizer->execute();
+		if ( !class_exists( HtmlFormatter::class ) ) {
+			$formatter = new \RemexHtml\Serializer\HtmlFormatter;
+			$serializer = new \RemexHtml\Serializer\Serializer( $formatter );
+			$treeBuilder = new \RemexHtml\TreeBuilder\TreeBuilder( $serializer );
+			$dispatcher = new \RemexHtml\TreeBuilder\Dispatcher( $treeBuilder );
+			$tokenizer = new \RemexHtml\Tokenizer\Tokenizer( $dispatcher, $html );
+		} else {
+			// MediaWiki 1.38+
+			$formatter = new HtmlFormatter;
+			$serializer = new Serializer( $formatter );
+			$treeBuilder = new TreeBuilder( $serializer );
+			$dispatcher = new Dispatcher( $treeBuilder );
+			$tokenizer = new Tokenizer( $dispatcher, $html );
+		}
 
+		$tokenizer->execute();
 		return $serializer->getResult();
 	}
 }
