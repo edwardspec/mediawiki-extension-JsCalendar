@@ -27,6 +27,7 @@ use DateTime;
 use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
+use ObjectCache;
 use Parser;
 use Title;
 
@@ -101,7 +102,7 @@ class EventCalendar {
 
 		// Obtain connections to DB/cache that may or may not be used for storing snippets in cache.
 		$dbw = wfGetDB( DB_MASTER );
-		$dbCache = wfGetCache( CACHE_DB );
+		$dbCache = ObjectCache::getInstance( CACHE_DB );
 
 		$eventmap = [];
 		foreach ( $res as $row ) {
@@ -279,7 +280,7 @@ class EventCalendar {
 		// config variables
 		global $wgECMaxCacheTime;
 
-		$parser->getOutput()->addModules( 'ext.yasec' );
+		$parser->getOutput()->addModules( [ 'ext.yasec' ] );
 
 		if ( $wgECMaxCacheTime !== false ) {
 			$parser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );

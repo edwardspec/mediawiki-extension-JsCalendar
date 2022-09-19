@@ -24,6 +24,7 @@
 namespace MediaWiki\JsCalendar;
 
 use MediaWiki\Revision\SlotRecord;
+use ObjectCache;
 
 class FindEventPagesQuery {
 
@@ -193,7 +194,7 @@ class FindEventPagesQuery {
 		$this->tables[] = 'objectcache';
 		$this->fields[] = 'value AS snippet';
 
-		$cachePrefix = wfGetCache( CACHE_DB )->makeKey( 'jscalendar-snippet-' );
+		$cachePrefix = ObjectCache::getInstance( CACHE_DB )->makeKey( 'jscalendar-snippet-' );
 
 		$this->joinConds['objectcache'] = [
 			'LEFT JOIN',

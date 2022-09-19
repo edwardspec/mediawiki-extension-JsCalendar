@@ -1,0 +1,5 @@
+High-prio:
+* Add at least the most basic unit tests.
+
+Medium-prio:
+* Migrate from fullcalendar v2.9.1 to the latest version.
