@@ -1,0 +1,54 @@
+name: JSON linter + luacheck
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  DBTYPE: mysql
+  DBUSER: root
+
+jobs:
+  # PHP linters: phpcs, parallel-lint, etc.
+  linter:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.4'
+            tools: composer
+      - uses: actions/cache@v2
+        with:
+          path: ~/.composer/cache
+          key: composer-cache
+      - run: sudo apt-get install -y composer && composer install
+      - run: composer test
+
+  # Phan (PHP static analyzer)
+  phan:
+    runs-on: ubuntu-20.04
+    env:
+      branch: REL1_39
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.4'
+            extensions: ast
+            tools: composer
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            buildcache
+          key: buildcache-${{ env.branch }}
+      - uses: edwardspec/github-action-build-mediawiki@v1
+        with:
+          branch: ${{ env.branch }}
+          noinstall: 1
+      - name: Install dependencies
+        run: |
+          rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/JsCalendar/
+          cd mediawiki/extensions/JsCalendar
+          composer install
+      - name: RUN -- phan
+        run: cd mediawiki/extensions/JsCalendar && ./vendor/bin/phan --analyze-twice
