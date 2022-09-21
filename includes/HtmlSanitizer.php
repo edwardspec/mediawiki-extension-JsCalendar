@@ -29,6 +29,8 @@ use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
 
+/** @phan-file-suppress PhanUndeclaredClassMethod */
+
 class HtmlSanitizer {
 	/**
 	 * Remove invalid/non-matching/truncated HTML tags and return correct (sanitized) HTML.
@@ -37,13 +39,14 @@ class HtmlSanitizer {
 	 */
 	public static function sanitizeHTML( $html ) {
 		if ( !class_exists( HtmlFormatter::class ) ) {
+			// MediaWiki 1.35-1.36
 			$formatter = new \RemexHtml\Serializer\HtmlFormatter;
 			$serializer = new \RemexHtml\Serializer\Serializer( $formatter );
 			$treeBuilder = new \RemexHtml\TreeBuilder\TreeBuilder( $serializer );
 			$dispatcher = new \RemexHtml\TreeBuilder\Dispatcher( $treeBuilder );
 			$tokenizer = new \RemexHtml\Tokenizer\Tokenizer( $dispatcher, $html );
 		} else {
-			// MediaWiki 1.38+
+			// MediaWiki 1.37+
 			$formatter = new HtmlFormatter;
 			$serializer = new Serializer( $formatter );
 			$treeBuilder = new TreeBuilder( $serializer );

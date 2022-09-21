@@ -92,7 +92,7 @@ class FindEventPagesQuery {
 		}
 
 		$this->where[] = 'page_title ' .
-			$this->dbr->buildLike( [ $prefix, $this->dbr->anyString(), $suffix ] );
+			$this->dbr->buildLike( $prefix, $this->dbr->anyString(), $suffix );
 	}
 
 	/**
@@ -178,7 +178,7 @@ class FindEventPagesQuery {
 			'INNER JOIN',
 			[
 				'content_id=slot_content_id',
-				'content_address ' . $this->dbr->buildLike( [ 'tt:', $this->dbr->anyString() ] )
+				'content_address ' . $this->dbr->buildLike( 'tt:', $this->dbr->anyString() )
 			]
 		];
 		$this->joinConds['text'] = [
