@@ -243,7 +243,7 @@ class EventCalendar {
 		$events = [];
 		foreach ( $eventmap as $eventKey => $entries ) {
 			// Sort $entries by starting date, from earliest to latest.
-			usort( $entries, function ( $event1, $event2 ) {
+			usort( $entries, static function ( $event1, $event2 ) {
 				return strcmp( $event1['start'], $event2['start'] );
 			} );
 
