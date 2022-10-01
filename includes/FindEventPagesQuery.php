@@ -59,7 +59,8 @@ class FindEventPagesQuery {
 	 */
 	protected $options = [
 		'GROUP BY' => [
-			'page_title'
+			'page_title',
+			'page_latest'
 		],
 		'LIMIT' => 5000
 	];
