@@ -170,5 +170,44 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				]
 			]
 		];
+
+		yield 'calendar with titleRegex' => [
+			[
+				'Category:2022/01/15 Name1' => 'Text1',
+				'Page 1, unrelated to the calendar' => 'Text 1',
+				'Category:2022/02/16 Name2' => 'Text2',
+				'Category:25 December 2022 Wrong Date Format' => 'Won\'t be shown in the calendar',
+				'Category:2022/03/17 Name3' => 'Text3',
+				'Category:2022/04/18 Name4' => 'Text4',
+				'Page 2, unrelated to the calendar' => 'Text 2'
+			],
+			"namespace = Category\ntitleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])_.*\ndateFormat = Y/m/d",
+			[
+				[
+					'title' => 'Name1',
+					'start' => '2022-01-15',
+					'end' => '2022-01-16',
+					'url' => '/wiki/Category:2022/01/15_Name1',
+				],
+				[
+					'title' => 'Name2',
+					'start' => '2022-02-16',
+					'end' => '2022-02-17',
+					'url' => '/wiki/Category:2022/02/16_Name2',
+				],
+				[
+					'title' => 'Name3',
+					'start' => '2022-03-17',
+					'end' => '2022-03-18',
+					'url' => '/wiki/Category:2022/03/17_Name3',
+				],
+				[
+					'title' => 'Name4',
+					'start' => '2022-04-18',
+					'end' => '2022-04-19',
+					'url' => '/wiki/Category:2022/04/18_Name4',
+				]
+			]
+		];
 	}
 }
