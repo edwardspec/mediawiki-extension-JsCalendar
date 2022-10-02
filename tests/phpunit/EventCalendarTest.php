@@ -74,8 +74,8 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		// because PHPUnit will truncate the output if the multi-level arrays are different,
 		// and truncated outputs are useless for troubleshooting.
 		$this->assertEquals(
-			FormatJson::encode( $expectedData, true, FormatJson::ALL_OK ),
-			FormatJson::encode( $actualData, true, FormatJson::ALL_OK ),
+			var_export( $expectedData, true ),
+			var_export( $actualData, true ),
 			'Unexpected data was provided to the JavaScript that renders the calendar.' );
 	}
 
@@ -90,7 +90,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[]
 		];
 
-		yield 'calendar with prefix' => [
+		yield 'calendar with prefix, namespace=Template' => [
 			[
 				'Template:Today in History/April, 12' => 'Events on April 12',
 				'Page 1, unrelated to the calendar' => 'Text 1',
@@ -101,7 +101,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				'Template:Today in History/December, 31' => 'New Year Eve',
 				'Page 2, unrelated to the calendar' => 'Text 2'
 			],
-			"namespace = Template\naspectratio = 1.35\nprefix = Today_in_History/\nsuffix =\ndateFormat = F,_j",
+			"namespace = Template\nprefix = Today_in_History/\ndateFormat = F,_j",
 			[
 				[
 					'title' => 'Today in History/April, 12',
@@ -127,6 +127,46 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-05-01',
 					'end' => '2022-05-02',
 					'url' => '/wiki/Template:Today_in_History/May,_1'
+				]
+			]
+		];
+
+		yield 'calendar with suffix, default namespace (NS_MAIN)' => [
+			[
+				'1 May (events)' => 'Events on May 1',
+				'Page 1, unrelated to the calendar' => 'Text 1',
+				'2 May (events)' => 'Events on May 2',
+				'3 May (events)' => 'Events on May 3',
+				'3, May (events)' => 'Wrong date format, won\'t be shown in the calendar',
+				'Events/3 May' => 'No suffix, won\'t be shown in the calendar',
+				'Page 2, unrelated to the calendar' => 'Text 2',
+				'25 December (events)' => 'Events on December 25'
+			],
+			"suffix = _(events)\ndateFormat = j_F",
+			[
+				[
+					'title' => '1 May (events)',
+					'start' => '2022-05-01',
+					'end' => '2022-05-02',
+					'url' => '/wiki/1_May_(events)'
+				],
+				[
+					'title' => '25 December (events)',
+					'start' => '2022-12-25',
+					'end' => '2022-12-26',
+					'url' => '/wiki/25_December_(events)'
+				],
+				[
+					'title' => '2 May (events)',
+					'start' => '2022-05-02',
+					'end' => '2022-05-03',
+					'url' => '/wiki/2_May_(events)'
+				],
+				[
+					'title' => '3 May (events)',
+					'start' => '2022-05-03',
+					'end' => '2022-05-04',
+					'url' => '/wiki/3_May_(events)'
 				]
 			]
 		];
