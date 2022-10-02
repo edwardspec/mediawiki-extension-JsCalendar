@@ -197,10 +197,11 @@ class EventCalendar {
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;
-				$textToDisplay = str_replace( $dateString, '', $textToDisplay );
+				$textToDisplay = str_replace( strtr( $dateString, '_', ' ' ), '', $textToDisplay );
 			}
 
-			$textToDisplay = trim( $textToDisplay );
+			// Remove leading/trailing spaces and symbols ":" and "/" (likely separators of name/date).
+			$textToDisplay = trim( $textToDisplay, " \n\r\t\v\x00:/" );
 
 			// Form the EventObject descriptor (as expected by JavaScript library),
 			// see [resources/fullcalendar/changelog.txt]

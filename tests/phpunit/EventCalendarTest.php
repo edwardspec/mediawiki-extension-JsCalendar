@@ -104,29 +104,28 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			"namespace = Template\nprefix = Today_in_History/\ndateFormat = F,_j",
 			[
 				[
-					'title' => 'Today in History/April, 12',
+					'title' => 'Today in History',
 					'start' => '2022-04-12',
 					'end' => '2022-04-13',
 					'url' => '/wiki/Template:Today_in_History/April,_12'
 				],
 				[
-					'title' => 'Today in History/December, 25',
+					'title' => 'Today in History',
+					'start' => '2022-05-01',
+					'end' => '2022-05-02',
+					'url' => '/wiki/Template:Today_in_History/May,_1'
+				],
+				[
+					'title' => 'Today in History',
 					'start' => '2022-12-25',
 					'end' => '2022-12-26',
 					'url' => '/wiki/Template:Today_in_History/December,_25'
 				],
 				[
-					'title' => 'Today in History/December, 31',
+					'title' => 'Today in History',
 					'start' => '2022-12-31',
 					'end' => '2023-01-01',
 					'url' => '/wiki/Template:Today_in_History/December,_31'
-				],
-				[
-					// Order of titles in this array is alphabetic, so May entries are after December.
-					'title' => 'Today in History/May, 1',
-					'start' => '2022-05-01',
-					'end' => '2022-05-02',
-					'url' => '/wiki/Template:Today_in_History/May,_1'
 				]
 			]
 		];
@@ -135,8 +134,8 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				'1 May (events)' => 'Events on May 1',
 				'Page 1, unrelated to the calendar' => 'Text 1',
-				'2 May (events)' => 'Events on May 2',
 				'3 May (events)' => 'Events on May 3',
+				'5 May (events)' => 'Events on May 5',
 				'3, May (events)' => 'Wrong date format, won\'t be shown in the calendar',
 				'Events/3 May' => 'No suffix, won\'t be shown in the calendar',
 				'Page 2, unrelated to the calendar' => 'Text 2',
@@ -145,28 +144,28 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			"suffix = _(events)\ndateFormat = j_F",
 			[
 				[
-					'title' => '1 May (events)',
+					'title' => '(events)',
 					'start' => '2022-05-01',
 					'end' => '2022-05-02',
 					'url' => '/wiki/1_May_(events)'
 				],
 				[
-					'title' => '25 December (events)',
-					'start' => '2022-12-25',
-					'end' => '2022-12-26',
-					'url' => '/wiki/25_December_(events)'
-				],
-				[
-					'title' => '2 May (events)',
-					'start' => '2022-05-02',
-					'end' => '2022-05-03',
-					'url' => '/wiki/2_May_(events)'
-				],
-				[
-					'title' => '3 May (events)',
+					'title' => '(events)',
 					'start' => '2022-05-03',
 					'end' => '2022-05-04',
 					'url' => '/wiki/3_May_(events)'
+				],
+				[
+					'title' => '(events)',
+					'start' => '2022-05-05',
+					'end' => '2022-05-06',
+					'url' => '/wiki/5_May_(events)'
+				],
+				[
+					'title' => '(events)',
+					'start' => '2022-12-25',
+					'end' => '2022-12-26',
+					'url' => '/wiki/25_December_(events)'
 				]
 			]
 		];
