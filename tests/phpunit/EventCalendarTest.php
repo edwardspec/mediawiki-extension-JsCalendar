@@ -208,5 +208,62 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				]
 			]
 		];
+
+		yield 'calendar with categorycolor' => [
+			[
+				'Munchkin cat adoption 01.01' => 'Events on January 1. [[Category:Cat events]]',
+				'Dachshung dog adoption 15.01' => 'Events on January 15. [[Category:Dogs]]',
+				'Released the recovered eagles 16.01' => 'Events on January 16.',
+				'Bought extra food for bears 31.07' => 'Events on July 31. [[Category:Food purchase]]',
+				'Sphinx cat adoption 25.12' => 'Events on December 25. [[Category:Cat events]]',
+				'Ferret adoption 31.12' => 'Events on December 31. [[Category:Ferrets]]'
+			],
+			"titleRegex = .*([0-9][0-9]\.[0-9][0-9])$\ndateFormat = d.m\ncategorycolor.Cat events = green\n" .
+				"categorycolor.Dogs = red\ncategorycolor.Ferrets = yellow",
+			[
+				[
+					'title' => 'Bought extra food for bears',
+					'start' => '2022-07-31',
+					'end' => '2022-08-01',
+					'url' => '/wiki/Bought_extra_food_for_bears_31.07'
+					// no color: no "categorycolor" parameter for this category
+				],
+				[
+					'title' => 'Dachshung dog adoption',
+					'start' => '2022-01-15',
+					'end' => '2022-01-16',
+					'url' => '/wiki/Dachshung_dog_adoption_15.01',
+					'color' => 'red'
+				],
+				[
+					'title' => 'Ferret adoption',
+					'start' => '2022-12-31',
+					'end' => '2023-01-01',
+					'url' => '/wiki/Ferret_adoption_31.12',
+					'color' => 'yellow'
+				],
+				[
+					'title' => 'Munchkin cat adoption',
+					'start' => '2022-01-01',
+					'end' => '2022-01-02',
+					'url' => '/wiki/Munchkin_cat_adoption_01.01',
+					'color' => 'green',
+				],
+				[
+					'title' => 'Released the recovered eagles',
+					'start' => '2022-01-16',
+					'end' => '2022-01-17',
+					'url' => '/wiki/Released_the_recovered_eagles_16.01'
+					// no color: this page doesn't have any categories
+				],
+				[
+					'title' => 'Sphinx cat adoption',
+					'start' => '2022-12-25',
+					'end' => '2022-12-26',
+					'url' => '/wiki/Sphinx_cat_adoption_25.12',
+					'color' => 'green'
+				]
+			]
+		];
 	}
 }
