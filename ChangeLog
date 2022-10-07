@@ -1,0 +1,34 @@
+List of changes between releases of Extension:JsCalendar.
+
+== master branch (will become JsCalendar 0.3.3 or 0.4.0, depending on magnitude of changes) ==
+
+Bugfixes:
+* Fixed MySQL errors in ONLY_FULL_GROUP_BY mode.
+
+Performance:
+* Removed unneeded invisible tags from HTML snippets.
+
+== JsCalendar 0.3.2  ==
+
+Features:
+* Support MediaWiki 1.39.
+
+Bugfixes:
+* Fixed harmless warning in logs when categorycolor option is not used.
+
+== JsCalendar 0.3.1  ==
+
+Features:
+* Support MediaWiki 1.35-1.38.
+* Made keywordcolor work even when HTML snippets are not enabled.
+* Adjacent events with the same name (or snippet) are now shown as one multi-day event.
+* HTML snippets are now tidied (truncated/non-closed HTML tags are removed from them).
+* Updated fullcalendar library from v2.0.0-beta2 to v2.9.1.
+* Calendar now uses current wiki's language on non-English wikis.
+
+Performance:
+* Generated HTML snippets are cached to not rerun the Parser.
+
+== JsCalendar 0.3.0  ==
+
+Initial release of JsCalendar (previous versions were a part of "yasec" extension).
