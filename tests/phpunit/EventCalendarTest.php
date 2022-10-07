@@ -416,7 +416,8 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		yield 'calendar with snippets (symbols=50)' => [
 			[
 				'January 1: New Year' =>
-					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt'
+					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+				'January 2: Day After New Year' => 'Very short text'
 			],
 			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 50",
 			[
@@ -425,6 +426,12 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-01-01',
 					'end' => '2022-01-02',
 					'url' => '/wiki/January_1:_New_Year'
+				],
+				[
+					'title' => "<p>Very short text</p>",
+					'start' => '2022-01-02',
+					'end' => '2022-01-03',
+					'url' => '/wiki/January_2:_Day_After_New_Year'
 				]
 			]
 		];
