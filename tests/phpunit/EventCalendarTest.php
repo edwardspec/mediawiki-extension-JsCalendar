@@ -421,9 +421,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 50",
 			[
 				[
-					// FIXME: these wrapper tags should be removed. Only contents of <body> are needed.
-					'title' => '<!DOCTYPE html><html><head></head><body>' .
-						'<p>Lorem ipsum dolor sit amet, consectetur adipisc</p></body></html>',
+					'title' => '<p>Lorem ipsum dolor sit amet, consectetur adipisc</p>',
 					'start' => '2022-01-01',
 					'end' => '2022-01-02',
 					'url' => '/wiki/January_1:_New_Year'

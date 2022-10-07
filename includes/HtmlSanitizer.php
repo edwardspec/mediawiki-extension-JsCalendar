@@ -55,6 +55,12 @@ class HtmlSanitizer {
 		}
 
 		$tokenizer->execute();
-		return $serializer->getResult();
+		$html = $serializer->getResult();
+
+		// Remove doctype, <head>, etc.: everything outside the <body> tag.
+		// TODO: this can probably be implemented by subclassing HtmlFormatter class.
+		$html = preg_replace( '@^.*<body>(.*)</body>.*$@', '$1', $html );
+
+		return $html;
 	}
 }
