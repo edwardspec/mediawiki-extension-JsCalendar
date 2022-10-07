@@ -144,7 +144,7 @@ class FindEventPagesQuery {
 			]
 		];
 
-		// If the page belongs to 2+ colored categories only one of them will affect the color.
+		// If the page belongs to 2+ colored categories, only one of them will affect the color.
 		// Currently we don't care which category's color will be applied.
 		$this->options['GROUP BY'][] = 'cl_to';
 	}
