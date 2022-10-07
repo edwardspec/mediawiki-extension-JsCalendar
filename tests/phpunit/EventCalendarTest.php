@@ -28,6 +28,9 @@
  * @covers \MediaWiki\JsCalendar\EventCalendar
  */
 class EventCalendarTest extends MediaWikiIntegrationTestCase {
+	/** @var string[] */
+	protected $tablesUsed = [ 'page' ];
+
 	/**
 	 * Feed various wikitext with <eventcalendar> tag to the Parser and check if the output is correct.
 	 * @dataProvider dataProvider
@@ -186,25 +189,25 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'title' => 'Name1',
 					'start' => '2022-01-15',
 					'end' => '2022-01-16',
-					'url' => '/wiki/Category:2022/01/15_Name1',
+					'url' => '/wiki/Category:2022/01/15_Name1'
 				],
 				[
 					'title' => 'Name2',
 					'start' => '2022-02-16',
 					'end' => '2022-02-17',
-					'url' => '/wiki/Category:2022/02/16_Name2',
+					'url' => '/wiki/Category:2022/02/16_Name2'
 				],
 				[
 					'title' => 'Name3',
 					'start' => '2022-03-17',
 					'end' => '2022-03-18',
-					'url' => '/wiki/Category:2022/03/17_Name3',
+					'url' => '/wiki/Category:2022/03/17_Name3'
 				],
 				[
 					'title' => 'Name4',
 					'start' => '2022-04-18',
 					'end' => '2022-04-19',
-					'url' => '/wiki/Category:2022/04/18_Name4',
+					'url' => '/wiki/Category:2022/04/18_Name4'
 				]
 			]
 		];
@@ -247,7 +250,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-01-01',
 					'end' => '2022-01-02',
 					'url' => '/wiki/Munchkin_cat_adoption_01.01',
-					'color' => 'green',
+					'color' => 'green'
 				],
 				[
 					'title' => 'Released the recovered eagles',
@@ -262,6 +265,66 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'end' => '2022-12-26',
 					'url' => '/wiki/Sphinx_cat_adoption_25.12',
 					'color' => 'green'
+				]
+			]
+		];
+
+		yield 'calendar with keywordcolor (both title and text can cause a match, case-insensitive)' => [
+			[
+				'Munchkin cat adoption 01.01' => 'Events on January 1.',
+				'Dachshung dog adoption 15.01' => 'Events on January 15.',
+				'Bought extra food for bears 31.07' => 'Events on July 31.',
+				'Sphinx adoption 25.12' =>
+					'December 25: have the word "cat" in page text, but not in page title: still used by keywordcolor.',
+				'German Shepherd Dog adoption 26.12' => 'Events on December 26.',
+				'Unknown animal brought 31.12' =>
+					'December 31: somebody brought an unknown animal, possibly a ferret.'
+			],
+			"titleRegex = .*([0-9][0-9]\.[0-9][0-9])$\ndateFormat = d.m\nkeywordcolor.Cat = green\n" .
+				"keywordcolor.dog = red\nkeywordcolor.Ferret = yellow",
+			[
+				[
+					'title' => 'Bought extra food for bears',
+					'start' => '2022-07-31',
+					'end' => '2022-08-01',
+					'url' => '/wiki/Bought_extra_food_for_bears_31.07'
+					// no color: neither title nor text match any of the keywords
+				],
+				[
+					'title' => 'Dachshung dog adoption',
+					'start' => '2022-01-15',
+					'end' => '2022-01-16',
+					'url' => '/wiki/Dachshung_dog_adoption_15.01',
+					'color' => 'red'
+				],
+				[
+					'title' => 'German Shepherd Dog adoption',
+					'start' => '2022-12-26',
+					'end' => '2022-12-27',
+					'url' => '/wiki/German_Shepherd_Dog_adoption_26.12',
+					'color' => 'red'
+				],
+				[
+					'title' => 'Munchkin cat adoption',
+					'start' => '2022-01-01',
+					'end' => '2022-01-02',
+					'url' => '/wiki/Munchkin_cat_adoption_01.01',
+					'color' => 'green'
+				],
+				[
+					'title' => 'Sphinx adoption',
+					'start' => '2022-12-25',
+					'end' => '2022-12-26',
+					'url' => '/wiki/Sphinx_adoption_25.12',
+					'color' => 'green'
+				],
+				[
+					'title' => 'Unknown animal brought',
+					'start' => '2022-12-31',
+					'end' => '2023-01-01',
+					'url' => '/wiki/Unknown_animal_brought_31.12',
+					'color' => 'yellow'
+
 				]
 			]
 		];
