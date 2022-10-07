@@ -29,7 +29,7 @@
  */
 class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	/** @var string[] */
-	protected $tablesUsed = [ 'page' ];
+	protected $tablesUsed = [ 'page', 'objectcache' ];
 
 	/**
 	 * Feed various wikitext with <eventcalendar> tag to the Parser and check if the output is correct.
@@ -412,5 +412,23 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		];
 
 		// TODO: test snippets (symbols=N), including HTML sanitizer, removal of thumbnails, cache, etc.
+
+		yield 'calendar with snippets (symbols=50)' => [
+			[
+				'January 1: New Year' =>
+					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt'
+			],
+			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 50",
+			[
+				[
+					// FIXME: these wrapper tags should be removed. Only contents of <body> are needed.
+					'title' => '<!DOCTYPE html><html><head></head><body>' .
+						'<p>Lorem ipsum dolor sit amet, consectetur adipisc</p></body></html>',
+					'start' => '2022-01-01',
+					'end' => '2022-01-02',
+					'url' => '/wiki/January_1:_New_Year'
+				]
+			]
+		];
 	}
 }
