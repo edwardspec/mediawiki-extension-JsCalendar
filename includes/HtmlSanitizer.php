@@ -59,7 +59,10 @@ class HtmlSanitizer {
 
 		// Remove doctype, <head>, etc.: everything outside the <body> tag.
 		// TODO: this can probably be implemented by subclassing HtmlFormatter class.
-		$html = preg_replace( '@^.*<body>(.*)</body>.*$@', '$1', $html );
+		$html = preg_replace( '@^.*<body>(.*)</body>.*$@s', '$1', $html );
+
+		// Remove trailing newline inside <p></p> tags.
+		$html = preg_replace( "@\n</p>@", '</p>', $html );
 
 		return $html;
 	}
