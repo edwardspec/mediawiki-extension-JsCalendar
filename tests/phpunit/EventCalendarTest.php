@@ -362,5 +362,55 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				]
 			]
 		];
+
+		yield 'calendar with events that span several days' => [
+			[
+				'01.01 New Year Celebrations' => 'Events on January 1',
+				'02.01 New Year Celebrations' => 'Events on January 2',
+				'10.01 One Day Event 1' => 'Events on January 10',
+				'12.06 Four Days Event' => 'Events on July 12',
+				'13.06 Four Days Event' => 'Events on July 13',
+				'14.06 Four Days Event' => 'Events on July 14',
+				'15.06 Four Days Event' => 'Events on July 15',
+				'16.06 Unrelated Event' => 'Events on July 16',
+				'17.06 Four Days Event' => 'Events on July 17'
+			],
+			"titleRegex = ^([0-9][0-9]\.[0-9][0-9]).*\ndateFormat = d.m\n",
+			[
+				[
+					'title' => 'New Year Celebrations',
+					'start' => '2022-01-01',
+					'end' => '2022-01-03',
+					'url' => '/wiki/01.01_New_Year_Celebrations'
+				],
+				[
+					'title' => 'One Day Event 1',
+					'start' => '2022-01-10',
+					'end' => '2022-01-11',
+					'url' => '/wiki/10.01_One_Day_Event_1'
+				],
+				[
+					'title' => 'Four Days Event',
+					'start' => '2022-06-12',
+					'end' => '2022-06-16',
+					'url' => '/wiki/12.06_Four_Days_Event'
+				],
+				[
+					// This date is not adjacent to date of other 4 pages, so it forms a separate event.
+					'title' => 'Four Days Event',
+					'start' => '2022-06-17',
+					'end' => '2022-06-18',
+					'url' => '/wiki/17.06_Four_Days_Event'
+				],
+				[
+					'title' => 'Unrelated Event',
+					'start' => '2022-06-16',
+					'end' => '2022-06-17',
+					'url' => '/wiki/16.06_Unrelated_Event'
+				]
+			]
+		];
+
+		// TODO: test snippets (symbols=N), including HTML sanitizer, removal of thumbnails, cache, etc.
 	}
 }
