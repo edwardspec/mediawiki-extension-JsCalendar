@@ -198,6 +198,9 @@ class FindEventPagesQuery {
 		$this->tables[] = 'objectcache';
 		$this->fields[] = 'value AS snippet';
 
+		// There is only 1 row, but not having this GROUP BY would be an error in ONLY_FULL_GROUP_BY mode.
+		$this->options['GROUP BY'][] = 'value';
+
 		$cachePrefix = ObjectCache::getInstance( CACHE_DB )->makeKey( 'jscalendar-snippet-' );
 
 		$this->joinConds['objectcache'] = [
