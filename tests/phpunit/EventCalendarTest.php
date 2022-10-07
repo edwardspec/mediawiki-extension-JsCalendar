@@ -417,10 +417,25 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				'January 1: New Year' =>
 					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-				'January 2: Day After New Year' => 'Very short text'
+				'January 2: Day After New Year' => 'Very short text',
+				'February 13: Friday' => "'''Friday 13th''' is a ''very scary'' day (citations wanted).",
+				'February 29: Best birthday' => "Line1\nLine2\nLine3\n\nParagraph2\n\nParagraph3.",
+				'July 1: Truncated Html Tag' => 'Text <b>forgot to close this tag'
 			],
 			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 50",
 			[
+				[
+					'title' => '<p><b>Friday 13th</b> is a <i>very scary</i> day (</p>',
+					'start' => '2022-02-13',
+					'end' => '2022-02-14',
+					'url' => '/wiki/February_13:_Friday'
+				],
+				[
+					'title' => "<p>Line1\nLine2\nLine3</p><p>Paragraph2</p><p>Para</p>",
+					'start' => '2022-03-01',
+					'end' => '2022-03-02',
+					'url' => '/wiki/February_29:_Best_birthday'
+				],
 				[
 					'title' => '<p>Lorem ipsum dolor sit amet, consectetur adipisc</p>',
 					'start' => '2022-01-01',
@@ -432,6 +447,12 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-01-02',
 					'end' => '2022-01-03',
 					'url' => '/wiki/January_2:_Day_After_New_Year'
+				],
+				[
+					'title' => "<p>Text <b>forgot to close this tag\n</b></p>",
+					'start' => '2022-07-01',
+					'end' => '2022-07-02',
+					'url' => '/wiki/July_1:_Truncated_Html_Tag'
 				]
 			]
 		];
