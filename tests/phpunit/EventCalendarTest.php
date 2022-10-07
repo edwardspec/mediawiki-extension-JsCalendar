@@ -328,5 +328,39 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				]
 			]
 		];
+
+		yield 'calendar with both categorycolor and keywordcolor' => [
+			[
+				'News about some animals 01.01' => 'Events on January 1. [[Category:Cats]]',
+				'News about other animals 15.01' => 'Dog-related events on January 15.',
+				'News about not only dogs 31.07' => 'Events with both cats and dogs on July 31. [[Category:Cats]]'
+			],
+			"titleRegex = .*([0-9][0-9]\.[0-9][0-9])$\ndateFormat = d.m\n" .
+				"categorycolor.Cats = green\nkeywordcolor.dog = red",
+			[
+				[
+					'title' => 'News about not only dogs',
+					'start' => '2022-07-31',
+					'end' => '2022-08-01',
+					'url' => '/wiki/News_about_not_only_dogs_31.07',
+					// Matches both categorycolor.Cats and keywordcolor.dog, but categorycolor always has priority.
+					'color' => 'green'
+				],
+				[
+					'title' => 'News about other animals',
+					'start' => '2022-01-15',
+					'end' => '2022-01-16',
+					'url' => '/wiki/News_about_other_animals_15.01',
+					'color' => 'red' // From keywordcolor.dog
+				],
+				[
+					'title' => 'News about some animals',
+					'start' => '2022-01-01',
+					'end' => '2022-01-02',
+					'url' => '/wiki/News_about_some_animals_01.01',
+					'color' => 'green' // From categorycolor.Cats
+				]
+			]
+		];
 	}
 }
