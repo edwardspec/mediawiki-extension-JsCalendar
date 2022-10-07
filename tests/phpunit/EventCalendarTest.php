@@ -456,5 +456,36 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				]
 			]
 		];
+
+		yield 'calendar with limited number of events (limit=3)' => [
+			[
+				'January 1: Event 1' => 'Text 1',
+				'January 2: Event 2' => 'Text 2',
+				'February 13: Event 3' => 'Text 3',
+				'February 29: Event 4' => 'Text 4',
+				'July 1: Event 5' => 'Text 5'
+			],
+			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nlimit=3",
+			[
+				[
+					'title' => 'Event 3',
+					'start' => '2022-02-13',
+					'end' => '2022-02-14',
+					'url' => '/wiki/February_13:_Event_3'
+				],
+				[
+					'title' => 'Event 4',
+					'start' => '2022-03-01',
+					'end' => '2022-03-02',
+					'url' => '/wiki/February_29:_Event_4'
+				],
+				[
+					'title' => 'Event 1',
+					'start' => '2022-01-01',
+					'end' => '2022-01-02',
+					'url' => '/wiki/January_1:_Event_1'
+				]
+			]
+		];
 	}
 }
