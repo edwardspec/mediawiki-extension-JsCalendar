@@ -160,6 +160,9 @@ class FindEventPagesQuery {
 		$this->tables[] = 'text';
 		$this->fields[] = 'old_text AS text';
 
+		// There is only 1 row, but not having this GROUP BY would be an error in ONLY_FULL_GROUP_BY mode.
+		$this->options['GROUP BY'][] = 'old_text';
+
 		$this->joinConds['revision'] = [
 			'INNER JOIN',
 			[ 'rev_id=page_latest' ]
