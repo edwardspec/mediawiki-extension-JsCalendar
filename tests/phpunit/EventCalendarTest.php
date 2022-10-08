@@ -51,6 +51,23 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		}
 
 		// Parse the wikitext.
+		$actualData = $this->parseCalendarTag( $wikitext );
+
+		// We are not comparing $actualData and $expectedData directly with assertEquals,
+		// because PHPUnit will truncate the output if the multi-level arrays are different,
+		// and truncated outputs are useless for troubleshooting.
+		$this->assertEquals(
+			var_export( $expectedData, true ),
+			var_export( $actualData, true ),
+			'Unexpected data was provided to the JavaScript that renders the calendar.' );
+	}
+
+	/**
+	 * Helper method: parse <eventcalendar> tag and return the resulting event data.
+	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
+	 * @return array Event data that was provided to JavaScript library.
+	 */
+	private function parseCalendarTag( $wikitext ) {
 		$parser = $this->getServiceContainer()->getParser();
 		$title = Title::newFromText( 'Title of page with the calendar itself' );
 		$popt = ParserOptions::newFromAnon();
@@ -71,15 +88,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$this->assertTrue( $status->isGood(),
 			'Failed to parse the JSON of calendar data: ' . $status->getMessage()->plain() );
 
-		$actualData = $status->getValue();
-
-		// We are not comparing $actualData and $expectedData directly with assertEquals,
-		// because PHPUnit will truncate the output if the multi-level arrays are different,
-		// and truncated outputs are useless for troubleshooting.
-		$this->assertEquals(
-			var_export( $expectedData, true ),
-			var_export( $actualData, true ),
-			'Unexpected data was provided to the JavaScript that renders the calendar.' );
+		return $status->getValue();
 	}
 
 	/**
