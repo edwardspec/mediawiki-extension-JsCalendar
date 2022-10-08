@@ -76,7 +76,7 @@ class EventCalendar {
 		$query->detectCategories( array_keys( $coloredCategories ) );
 
 		// Find "keywordcolor.<SOMETHING>" keys in $opt.
-		// These are matched against the text of event pages.
+		// These are matched against both the text and the title of event pages.
 		$coloredKeywords = []; // E.g. [ 'statistically' => 'green', 'arctic' => 'red', ... ]
 		foreach ( $opt as $key => $val ) {
 			$matches = null;
@@ -133,8 +133,8 @@ class EventCalendar {
 			}
 
 			// Try to parse the date.
-			// For example, pages like "Conferences/05_April_2010" will need dateFormat=d/F/Y.
-			// See https://www.php.net/manual/ru/datetime.createfromformat.php
+			// For example, pages like "Conferences/05_April_2010" will need dateFormat=d_F_Y.
+			// See https://www.php.net/manual/en/datetime.createfromformat.php
 			$dateTime = DateTime::createFromFormat( $dateFormat, $dateString );
 			if ( !$dateTime ) {
 				// Couldn't parse the date (not in correct dateFormat), so ignore this page.
