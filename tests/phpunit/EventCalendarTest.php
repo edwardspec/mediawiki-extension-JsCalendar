@@ -420,8 +420,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			]
 		];
 
-		// TODO: test snippets (symbols=N), including HTML sanitizer, removal of thumbnails, cache, etc.
-
+		// TODO: test removal of thumbnails.
 		yield 'calendar with snippets (symbols=50)' => [
 			[
 				'January 1: New Year' =>
@@ -538,5 +537,35 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				[ [ $expectedSnippet ] ]
 			);
 		}
+	}
+
+	/**
+	 * Verify that snippets cached in the "objectcache" table are used instead of reparsing the page.
+	 */
+	public function testSnippetCacheWasUsed() {
+		// Precreate the article.
+		$pageId = $this->insertPage( 'January 1: New Year', 'Snippet on the page itself' )['id'];
+		$expectedSnippet = 'Different snippet that was saved in the cache';
+
+		// Populate the cache with $expectedSnippet.
+		$cache = ObjectCache::getInstance( CACHE_DB );
+		$cacheKey = $cache->makeKey( 'jscalendar-snippet-' ) . $pageId;
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->insert( 'objectcache', [
+			'keyname' => $cache->makeKey( 'jscalendar-snippet-' ) . $pageId,
+			'value' => $expectedSnippet,
+			'exptime' => $dbw->timestamp( time() + 86400 )
+		], __METHOD__ );
+
+		// Render the calendar.
+		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
+		$actualData = $this->parseCalendarTag( $wikitext );
+
+		// Make sure that text from the page itself was ignored,
+		// because the cached value was used instead.
+		$this->assertSame( $expectedSnippet, $actualData[0]['title'],
+			'testSnippetCacheWasUsed(): snippet from the cache wasn\'t used.'
+		);
 	}
 }
