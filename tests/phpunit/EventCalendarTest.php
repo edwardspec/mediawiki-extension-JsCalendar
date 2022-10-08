@@ -497,4 +497,46 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			]
 		];
 	}
+
+	/**
+	 * Verify that newly generated snippets are being saved in the "objectcache" table.
+	 */
+	public function testSnippetCacheWasCreated() {
+		// Precreate the articles.
+		$pages = [
+			// These page names should use spaces (not underscores),
+			// because later we use $title->getFullText() as a key in this array.
+			'January 1: New Year' => '=== Snippet of January 1 Event ===',
+			'January 2: Event 2' => "This event is '''second'''. [[Category:January]]",
+			'December 15: Event 3' => 'Plaintext event (December 15).'
+		];
+
+		// Precreate the articles.
+		$titles = [];
+		foreach ( $pages as $pageName => $pageText ) {
+			$titles[] = $this->insertPage( $pageName, $pageText )['title'];
+		}
+
+		// Obtain the snippets that were provided to the JavaScript calendar.
+		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
+		$actualData = $this->parseCalendarTag( $wikitext );
+
+		$expectedSnippets = [];
+		foreach ( $actualData as $event ) {
+			$expectedSnippets[$event['url']] = $event['title'];
+		}
+
+		// Verify that the same snippets were written to the cache.
+		foreach ( $titles as $title ) {
+			$expectedSnippet = $expectedSnippets[$title->getLocalUrl()] ?? null;
+
+			$cache = ObjectCache::getInstance( CACHE_DB );
+			$cacheKey = $cache->makeKey( 'jscalendar-snippet-' ) . $title->getLatestRevId();
+			$this->assertSelect( 'objectcache',
+				[ 'value' ],
+				[ 'keyname' => $cacheKey ],
+				[ [ $expectedSnippet ] ]
+			);
+		}
+	}
 }
