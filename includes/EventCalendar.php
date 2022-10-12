@@ -157,7 +157,6 @@ class EventCalendar {
 			$startdate = $dateTime->format( 'Y-m-d' );
 
 			if ( $enddateTime ) {
-				$enddateTime->modify( '+1 day' );
 				$enddate = $enddateTime->format( 'Y-m-d' );
 			} else {
 				$dateTime->modify( '+1 day' );
