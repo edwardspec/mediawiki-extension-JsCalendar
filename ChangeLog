@@ -1,6 +1,10 @@
 List of changes between releases of Extension:JsCalendar.
 
-== master branch (will become JsCalendar 0.3.3 or 0.4.0, depending on magnitude of changes) ==
+== master branch (will become JsCalendar 0.3.4 or 0.4.0, depending on magnitude of changes) ==
+
+No changes since JsCalendar 0.3.3.
+
+== JsCalendar 0.3.3 ==
 
 Bugfixes:
 * Fixed MySQL errors in ONLY_FULL_GROUP_BY mode.
