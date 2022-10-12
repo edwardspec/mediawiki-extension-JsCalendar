@@ -1,2 +1,2 @@
-Medium-prio:
-* Migrate from fullcalendar v2.9.1 to the latest version.
+High-prio:
+* Adjust the CSS of FullCalendar v5 to be close to the previous appearance (from FullCalendar 2.9.1).

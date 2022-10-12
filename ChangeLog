@@ -2,7 +2,10 @@ List of changes between releases of Extension:JsCalendar.
 
 == master branch (will become JsCalendar 0.3.4 or 0.4.0, depending on magnitude of changes) ==
 
-No changes since JsCalendar 0.3.3.
+Features:
+* Added an option to use FullCalendar 5 (most current version) instead of FullCalendar 2.9.1.
+	This is experimental, because the styling of v5 calendar is preliminary and may be changed later.
+	Can be enabled with $wgJsCalendarFullCalendarVersion = 5;
 
 == JsCalendar 0.3.3 ==
 

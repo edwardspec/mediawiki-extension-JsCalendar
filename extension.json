@@ -27,6 +27,20 @@
 			"dependencies": [
 				"jquery.ui"
 			]
+		},
+		"ext.yasec5": {
+			"scripts": [
+				"fullcalendar5/lib/main.min.js",
+				"fullcalendar5/lib/locales-all.min.js",
+				"ext.yasec5.js"
+			],
+			"styles": [
+				"fullcalendar5/lib/main.min.css",
+				"ext.yasec5.css"
+			],
+			"dependencies": [
+				"jquery.ui"
+			]
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -49,7 +63,7 @@
 		},
 		"JsCalendarFullCalendarVersion": {
 			"value": 2,
-			"description": "Version of FullCalendar library to use (this library is responsible for how the calendar is displayed). Currently the only supported value is 2."
+			"description": "Version of FullCalendar library to use (this library is responsible for how the calendar is displayed). The only supported values are 2 (default) and 5 (experimental)."
 		}
 	},
 	"manifest_version": 2

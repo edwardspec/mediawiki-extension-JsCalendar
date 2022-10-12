@@ -1,4 +1,4 @@
-/* Styles for FullCalendar v2 */
+/* Styles for FullCalendar v5 */
 
 div.fc {
 	max-width: 800px;
@@ -21,12 +21,14 @@ div.fc {
 	text-decoration: underline;
 }
 
-
-/* Limit the height of calendar cells (necessary when the snippets are too long) */
 .fc-event {
+	/* Limit the height of calendar cells (necessary when the snippets are too long) */
 	max-height: 150px;
 	overflow-x: hidden;
 	overflow-y: auto;
+
+	/* Allow multiline snippets */
+	white-space: normal;
 }
 
 .eventcalendar .fc-basic-view .fc-body .fc-row {

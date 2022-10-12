@@ -288,11 +288,13 @@ class EventCalendar {
 				$modules[] = 'ext.yasec';
 				break;
 
-			// TODO: add 5 as possible version
+			case 5:
+				$modules[] = 'ext.yasec5';
+				break;
 
 			default:
 				throw new MWException( 'Unsupported value of $wgJsCalendarFullCalendarVersion (' .
-					$wgJsCalendarFullCalendarVersion . '): can only be 2.' );
+					$wgJsCalendarFullCalendarVersion . '): can only be 2 or 5.' );
 		}
 
 		$parser->getOutput()->addModules( $modules );

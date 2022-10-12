@@ -87,11 +87,22 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
+	 * Verify that $wgJsCalendarFullCalendarVersion=2 loads "ext.yasec5" JavaScript module.
+	 */
+	public function testFullCalendarVersion5() {
+		$this->setMwGlobals( 'wgJsCalendarFullCalendarVersion', 5 );
+
+		$pout = $this->parseCalendarTag( '' );
+		$this->assertSame( [ 'ext.yasec5' ], $pout->getModules(),
+			'ParserOutput: necessary JavaScript module wasn\'t added.' );
+	}
+
+	/**
 	 * Verify that $wgJsCalendarFullCalendarVersion with unsupported version throws an exception.
 	 */
 	public function testFullCalendarVersionUnknown() {
 		$this->expectExceptionObject( new MWException(
-			'Unsupported value of $wgJsCalendarFullCalendarVersion (3): can only be 2.'
+			'Unsupported value of $wgJsCalendarFullCalendarVersion (3): can only be 2 or 5.'
 		) );
 		$this->setMwGlobals( 'wgJsCalendarFullCalendarVersion', 3 );
 

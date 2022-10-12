@@ -1,3 +1,5 @@
+/* This script feeds event data to FullCalendar v2. */
+
 jQuery( document ).ready( function( $ ) {
     if ( typeof window.eventCalendarData === 'object' ) {
         for ( var i = 0; i < window.eventCalendarData.length; i++ ) {
