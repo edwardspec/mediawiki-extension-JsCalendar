@@ -413,7 +413,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			]
 		];
 
-		yield 'calendar with events that span several days' => [
+		yield 'calendar with events that span several days (events with the same title)' => [
 			[
 				'01.01 New Year Celebrations' => 'Events on January 1',
 				'02.01 New Year Celebrations' => 'Events on January 2',
@@ -457,6 +457,36 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-06-16',
 					'end' => '2022-06-17',
 					'url' => '/wiki/16.06_Unrelated_Event'
+				]
+			]
+		];
+
+		yield 'calendar with events that span several days (explicitly set end date)' => [
+			[
+				'2022/04/28:2022/04/29 Test Event 1' => 'Event from April 28 to April 29',
+				'2022/05/10:2022/04/15 Test Event 2' => 'Event from May 10 to May 15',
+				'2022/05/18 Test Event 3' => 'Event on May 18, no enddate specified'
+			],
+			"titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*\n" .
+				"dateFormat = Y/m/d",
+			[
+				[
+					'title' => 'Test Event 1',
+					'start' => '2022-04-28',
+					'end' => '2022-04-29',
+					'url' => '/wiki/2022/04/28:2022/04/29_Test_Event_1',
+				],
+				[
+					'title' => 'Test Event 2',
+					'start' => '2022-05-10',
+					'end' => '2022-04-15',
+					'url' => '/wiki/2022/05/10:2022/04/15_Test_Event_2'
+				],
+				[
+					'title' => 'Test Event 3',
+					'start' => '2022-05-18',
+					'end' => '2022-05-19',
+					'url' => '/wiki/2022/05/18_Test_Event_3'
 				]
 			]
 		];
