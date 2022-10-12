@@ -111,8 +111,8 @@ class EventCalendar {
 			$dbKey = $row->title;
 			$dateString = $dbKey;
 
-			$enddateString = "";
-			$enddateTime = null;
+			$enddateString = '';
+			$enddateTime = false;
 
 			if ( $prefix || $suffix ) {
 				// Remove $prefix and $suffix, which are both fixed strings surrounding the date.
@@ -133,16 +133,15 @@ class EventCalendar {
 					continue;
 				}
 
+				// Date then when event begins.
 				$dateString = $matches[1];
 
-				if ( count( $matches ) == 3 && $matches[2] ) {
-					// skip first char which should be a ':'
-					$enddateString = ltrim( $matches[2], ':' );
+				// Optional: date when the event ends.
+				$enddateString = $matches[2] ?? null;
+				if ( $enddateString ) {
+					// If end date is in incorrect format, we treat it as one-day event,
+					// same as if end date wasn't specified at all.
 					$enddateTime = DateTime::createFromFormat( $dateFormat, $enddateString );
-					if ( !$enddateTime ) {
-						// Couldn't parse the date (not in correct dateFormat), so ignore this page.
-						continue;
-					}
 				}
 			}
 
@@ -157,7 +156,7 @@ class EventCalendar {
 
 			$startdate = $dateTime->format( 'Y-m-d' );
 
-			if ( $enddateString != "" && $enddateTime ) {
+			if ( $enddateTime ) {
 				$enddateTime->modify( '+1 day' );
 				$enddate = $enddateTime->format( 'Y-m-d' );
 			} else {
@@ -216,11 +215,14 @@ class EventCalendar {
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;
-				$textToDelete = $dateString;
-				if ( $enddateString != "" ) {
-					$textToDelete .= ":" . $enddateString;
+				$textToDelete = [ $dateString ];
+				if ( $enddateString ) {
+					$textToDelete[] = $enddateString;
 				}
-				$textToDisplay = str_replace( strtr( $textToDelete, '_', ' ' ), '', $textToDisplay );
+
+				foreach ( $textToDelete as $partToDelete ) {
+					$textToDisplay = str_replace( strtr( $partToDelete, '_', ' ' ), '', $textToDisplay );
+				}
 			}
 
 			// Remove leading/trailing spaces and symbols ":" and "/" (likely separators of name/date).
