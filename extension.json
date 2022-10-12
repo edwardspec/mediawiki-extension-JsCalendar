@@ -44,7 +44,12 @@
 	},
 	"config": {
 		"ECMaxCacheTime": {
-			"value": 86400
+			"value": 86400,
+			"description": "Maximum time (in seconds) that a page with <eventcalendar> tag is allowed to be cached."
+		},
+		"JsCalendarFullCalendarVersion": {
+			"value": 2,
+			"description": "Version of FullCalendar library to use (this library is responsible for how the calendar is displayed). Currently the only supported value is 2."
 		}
 	},
 	"manifest_version": 2

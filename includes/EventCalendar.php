@@ -27,6 +27,7 @@ use DateTime;
 use FormatJson;
 use Html;
 use MediaWiki\MediaWikiServices;
+use MWException;
 use ObjectCache;
 use Parser;
 use Title;
@@ -279,9 +280,22 @@ class EventCalendar {
 	 */
 	public static function renderEventCalendar( $input, Parser $parser ) {
 		// config variables
-		global $wgECMaxCacheTime;
+		global $wgECMaxCacheTime, $wgJsCalendarFullCalendarVersion;
 
-		$parser->getOutput()->addModules( [ 'ext.yasec' ] );
+		$modules = [];
+		switch ( $wgJsCalendarFullCalendarVersion ) {
+			case 2:
+				$modules[] = 'ext.yasec';
+				break;
+
+			// TODO: add 5 as possible version
+
+			default:
+				throw new MWException( 'Unsupported value of $wgJsCalendarFullCalendarVersion (' .
+					$wgJsCalendarFullCalendarVersion . '): can only be 2.' );
+		}
+
+		$parser->getOutput()->addModules( $modules );
 
 		if ( $wgECMaxCacheTime !== false ) {
 			$parser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );

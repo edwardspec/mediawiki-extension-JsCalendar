@@ -51,7 +51,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		}
 
 		// Parse the wikitext.
-		$actualData = $this->parseCalendarTag( $wikitext );
+		$actualData = $this->parseCalendarEvents( $wikitext );
 
 		// We are not comparing $actualData and $expectedData directly with assertEquals,
 		// because PHPUnit will truncate the output if the multi-level arrays are different,
@@ -63,21 +63,51 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
-	 * Helper method: parse <eventcalendar> tag and return the resulting event data.
+	 * Helper method: parse <eventcalendar> tag and return the resulting ParserOutput.
 	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
-	 * @return array Event data that was provided to JavaScript library.
+	 * @return ParserOutput
 	 */
 	private function parseCalendarTag( $wikitext ) {
 		$parser = $this->getServiceContainer()->getParser();
 		$title = Title::newFromText( 'Title of page with the calendar itself' );
 		$popt = ParserOptions::newFromAnon();
 
-		$pout = $parser->parse( "<eventcalendar>$wikitext</eventcalendar>", $title, $popt );
-		$pout->clearWrapperDivClass();
-		$parsedHTML = $pout->getText();
+		return $parser->parse( "<eventcalendar>$wikitext</eventcalendar>", $title, $popt );
+	}
 
+	/**
+	 * Verify that $wgJsCalendarFullCalendarVersion=2 loads "ext.yasec" JavaScript module.
+	 */
+	public function testFullCalendarVersion2() {
+		$this->setMwGlobals( 'wgJsCalendarFullCalendarVersion', 2 );
+
+		$pout = $this->parseCalendarTag( '' );
 		$this->assertSame( [ 'ext.yasec' ], $pout->getModules(),
 			'ParserOutput: necessary JavaScript module wasn\'t added.' );
+	}
+
+	/**
+	 * Verify that $wgJsCalendarFullCalendarVersion with unsupported version throws an exception.
+	 */
+	public function testFullCalendarVersionUnknown() {
+		$this->expectExceptionObject( new MWException(
+			'Unsupported value of $wgJsCalendarFullCalendarVersion (3): can only be 2.'
+		) );
+		$this->setMwGlobals( 'wgJsCalendarFullCalendarVersion', 3 );
+
+		$pout = $this->parseCalendarTag( '' );
+	}
+
+	/**
+	 * Helper method: parse <eventcalendar> tag and return the resulting event data.
+	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
+	 * @return array Event data that was provided to JavaScript library.
+	 */
+	private function parseCalendarEvents( $wikitext ) {
+		$pout = $this->parseCalendarTag( $wikitext );
+		$pout->clearWrapperDivClass();
+
+		$parsedHTML = $pout->getText();
 
 		$matches = null;
 		$matchResult = preg_match( '@window.eventCalendarData.push\( (.*) \);\s*</script>@',
@@ -518,7 +548,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 		// Obtain the snippets that were provided to the JavaScript calendar.
 		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
-		$actualData = $this->parseCalendarTag( $wikitext );
+		$actualData = $this->parseCalendarEvents( $wikitext );
 
 		$expectedSnippets = [];
 		foreach ( $actualData as $event ) {
@@ -560,7 +590,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 		// Render the calendar.
 		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
-		$actualData = $this->parseCalendarTag( $wikitext );
+		$actualData = $this->parseCalendarEvents( $wikitext );
 
 		// Make sure that text from the page itself was ignored,
 		// because the cached value was used instead.
