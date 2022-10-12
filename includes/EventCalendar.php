@@ -110,7 +110,9 @@ class EventCalendar {
 			// Try to find the date in $pageName.
 			$dbKey = $row->title;
 			$dateString = $dbKey;
+
 			$enddateString = "";
+			$enddateTime = null;
 
 			if ( $prefix || $suffix ) {
 				// Remove $prefix and $suffix, which are both fixed strings surrounding the date.
@@ -155,7 +157,7 @@ class EventCalendar {
 
 			$startdate = $dateTime->format( 'Y-m-d' );
 
-			if ( $enddateString != "" ) {
+			if ( $enddateString != "" && $enddateTime ) {
 				$enddateTime->modify( '+1 day' );
 				$enddate = $enddateTime->format( 'Y-m-d' );
 			} else {
