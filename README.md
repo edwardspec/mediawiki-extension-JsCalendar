@@ -25,6 +25,8 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
 
 Everything between "prefix" and "suffix" should be a date.
 
+#### titleRegex
+
 Alternatively, `titleRegex` parameter can be used to find event pages. For example, the following wikitext will find pages like `Event:2020/05/15_Name_of_some_event`:
 
     <EventCalendar>
@@ -34,6 +36,17 @@ Alternatively, `titleRegex` parameter can be used to find event pages. For examp
     </EventCalendar>
     
 When using `titleRegex`, the date part (in example above - `[0-9]{4,4}/[0-9][0-9]/[0-9][0-9]`) **must be surrounded in "(" and ")" symbols** (otherwise the calendar wouldn't know "which part of the title is the date").
+
+It's also possible to match both the first and last day of the event.  For example, the following wikitext will find pages like `2022/05/10:2022/04/15_Name_of_some_event`:
+
+    <EventCalendar>
+    titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*
+    dateFormat = Y/m/d
+    </EventCalendar>
+    
+Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
+
+#### Styling
 
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
 
