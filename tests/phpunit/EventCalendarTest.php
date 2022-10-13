@@ -413,7 +413,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			]
 		];
 
-		yield 'calendar with events that span several days' => [
+		yield 'calendar with events that span several days (events with the same title)' => [
 			[
 				'01.01 New Year Celebrations' => 'Events on January 1',
 				'02.01 New Year Celebrations' => 'Events on January 2',
@@ -457,6 +457,100 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-06-16',
 					'end' => '2022-06-17',
 					'url' => '/wiki/16.06_Unrelated_Event'
+				]
+			]
+		];
+
+		yield 'calendar with events that span several days (explicitly set end date)' => [
+			[
+				'2022/04/28:2022/04/29 Test Event 1' => 'Event from April 28 to April 29',
+				'2022/05/10:2022/04/15 Test Event 2' => 'Event from May 10 to May 15',
+				'2022/05/18 Test Event 3' => 'Event on May 18, no enddate specified'
+			],
+			"titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*\n" .
+				'dateFormat = Y/m/d',
+			[
+				[
+					'title' => 'Test Event 1',
+					'start' => '2022-04-28',
+					'end' => '2022-04-29',
+					'url' => '/wiki/2022/04/28:2022/04/29_Test_Event_1',
+				],
+				[
+					'title' => 'Test Event 2',
+					'start' => '2022-05-10',
+					'end' => '2022-04-15',
+					'url' => '/wiki/2022/05/10:2022/04/15_Test_Event_2'
+				],
+				[
+					'title' => 'Test Event 3',
+					'start' => '2022-05-18',
+					'end' => '2022-05-19',
+					'url' => '/wiki/2022/05/18_Test_Event_3'
+				]
+			]
+		];
+
+		yield 'calendar with extra braces in titleRegex that has both start and end date' => [
+			[
+				'Cat Event 1 2022/04/20:2022/04/29' => 'Event 1',
+				'Ferret Event 2 2022/05/05:2022/04/07' => 'Event 2',
+				'Dog Event 3 2022/05/10:2022/05/15' => 'Event 3',
+				'Cat Event 4 2022/05/25:2022/05/27' => 'Event 4'
+			],
+			'titleRegex = ' .
+				"^(?:Cat|Dog)_Event.*?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?$\n" .
+				'dateFormat = Y/m/d',
+			[
+				[
+					'title' => 'Cat Event 1',
+					'start' => '2022-04-20',
+					'end' => '2022-04-29',
+					'url' => '/wiki/Cat_Event_1_2022/04/20:2022/04/29'
+				],
+				[
+					'title' => 'Cat Event 4',
+					'start' => '2022-05-25',
+					'end' => '2022-05-27',
+					'url' => '/wiki/Cat_Event_4_2022/05/25:2022/05/27'
+				],
+				[
+					'title' => 'Dog Event 3',
+					'start' => '2022-05-10',
+					'end' => '2022-05-15',
+					'url' => '/wiki/Dog_Event_3_2022/05/10:2022/05/15'
+				]
+			]
+		];
+
+		yield 'calendar that uses (?<start>something) and (?<end>something) syntax in titleRegex' => [
+			[
+				'Cat Event 1 2022/04/29//2022/04/20' => 'Event 1',
+				'Ferret Event 2 2022/05/07//2022/04/05' => 'Event 2',
+				'Dog Event 3 2022/05/15//2022/05/10' => 'Event 3',
+				'Cat Event 4 2022/05/27//2022/05/25' => 'Event 4'
+			],
+			'titleRegex = ^(Cat|Dog)_Event.*?(?<end>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])//' .
+				"(?<start>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])$\n" .
+				'dateFormat = Y/m/d',
+			[
+				[
+					'title' => 'Cat Event 1',
+					'start' => '2022-04-20',
+					'end' => '2022-04-29',
+					'url' => '/wiki/Cat_Event_1_2022/04/29//2022/04/20'
+				],
+				[
+					'title' => 'Cat Event 4',
+					'start' => '2022-05-25',
+					'end' => '2022-05-27',
+					'url' => '/wiki/Cat_Event_4_2022/05/27//2022/05/25'
+				],
+				[
+					'title' => 'Dog Event 3',
+					'start' => '2022-05-10',
+					'end' => '2022-05-15',
+					'url' => '/wiki/Dog_Event_3_2022/05/15//2022/05/10'
 				]
 			]
 		];

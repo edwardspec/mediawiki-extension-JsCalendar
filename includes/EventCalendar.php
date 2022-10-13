@@ -111,6 +111,9 @@ class EventCalendar {
 			$dbKey = $row->title;
 			$dateString = $dbKey;
 
+			$enddateString = '';
+			$enddateTime = false;
+
 			if ( $prefix || $suffix ) {
 				// Remove $prefix and $suffix, which are both fixed strings surrounding the date.
 				$dateString = substr( $dateString, strlen( $prefix ),
@@ -130,7 +133,16 @@ class EventCalendar {
 					continue;
 				}
 
-				$dateString = $matches[1];
+				// Date then when event begins.
+				$dateString = $matches['start'] ?? $matches[1];
+
+				// Optional: date when the event ends.
+				$enddateString = $matches['end'] ?? $matches[2] ?? null;
+				if ( $enddateString ) {
+					// If end date is in incorrect format, we treat it as one-day event,
+					// same as if end date wasn't specified at all.
+					$enddateTime = DateTime::createFromFormat( $dateFormat, $enddateString );
+				}
 			}
 
 			// Try to parse the date.
@@ -144,8 +156,12 @@ class EventCalendar {
 
 			$startdate = $dateTime->format( 'Y-m-d' );
 
-			$dateTime->modify( '+1 day' );
-			$enddate = $dateTime->format( 'Y-m-d' );
+			if ( $enddateTime ) {
+				$enddate = $enddateTime->format( 'Y-m-d' );
+			} else {
+				$dateTime->modify( '+1 day' );
+				$enddate = $dateTime->format( 'Y-m-d' );
+			}
 
 			$title = Title::makeTitle( $namespaceIdx, $row->title );
 			$pageName = $title->getText(); // Without namespace
@@ -198,7 +214,14 @@ class EventCalendar {
 			} else {
 				// By default we display the page title as event name, but remove the date from it.
 				$textToDisplay = $pageName;
-				$textToDisplay = str_replace( strtr( $dateString, '_', ' ' ), '', $textToDisplay );
+				$textToDelete = [ $dateString ];
+				if ( $enddateString ) {
+					$textToDelete[] = $enddateString;
+				}
+
+				foreach ( $textToDelete as $partToDelete ) {
+					$textToDisplay = str_replace( strtr( $partToDelete, '_', ' ' ), '', $textToDisplay );
+				}
 			}
 
 			// Remove leading/trailing spaces and symbols ":" and "/" (likely separators of name/date).
@@ -315,9 +338,7 @@ class EventCalendar {
 			$key = trim( $keyval[0] );
 			$val = trim( $keyval[1] );
 
-			if ( $key == 'aspectratio' ) {
-				$val = floatval( $val );
-			} elseif ( $key == 'namespace' ) {
+			if ( $key == 'namespace' ) {
 				$val = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $val );
 			}
 

@@ -25,6 +25,8 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
 
 Everything between "prefix" and "suffix" should be a date.
 
+#### titleRegex
+
 Alternatively, `titleRegex` parameter can be used to find event pages. For example, the following wikitext will find pages like `Event:2020/05/15_Name_of_some_event`:
 
     <EventCalendar>
@@ -34,6 +36,35 @@ Alternatively, `titleRegex` parameter can be used to find event pages. For examp
     </EventCalendar>
     
 When using `titleRegex`, the date part (in example above - `[0-9]{4,4}/[0-9][0-9]/[0-9][0-9]`) **must be surrounded in "(" and ")" symbols** (otherwise the calendar wouldn't know "which part of the title is the date").
+
+It's also possible to match both the first and last day of the event.  For example, the following wikitext will find pages like `2022/05/10:2022/04/15_Name_of_some_event`:
+
+    <EventCalendar>
+    titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*
+    dateFormat = Y/m/d
+    </EventCalendar>
+    
+Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
+
+##### Troubleshooting
+If your regex is complex, and you need to use "(" and ")" symbols for other purposes, you must add `?:` after "(" symbols that are not used to match the date.
+For example, if you want to match pages like `Cat Event 1 2022/04/20:2022/04/29`,
+but only if they start with "Cat Event" or "Dog Event", then the following wikitext will find them:
+
+    <EventCalendar>
+    titleRegex = ^(?:Cat|Dog)_Event.*?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?$
+    dateFormat = Y/m/d
+    </EventCalendar>
+    
+Alternatively, you can use syntax `(?<start>something)` and `(?<end>something)` to select the braces that contain the start/end date.
+For example, pages like `Cat Event 1 2022/04/29//2022/04/20` (where the end date is first) can be found by the following wikitext:
+
+    <EventCalendar>
+    titleRegex = ^(Cat|Dog)_Event.*?(?<end>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])//(?<start>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])$
+    dateFormat = Y/m/d
+    </EventCalendar>
+
+#### Styling
 
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
 
