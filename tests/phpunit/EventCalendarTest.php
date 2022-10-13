@@ -110,6 +110,18 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
+	 * Verify that $wgJsCalendarFullCalendarVersion=2 loads "ext.yasec5" JavaScript module.
+	 */
+	public function testCacheExpiry() {
+		$wantedCacheExpiry = 12345; // in seconds
+		$this->setMwGlobals( 'wgECMaxCacheTime', $wantedCacheExpiry );
+
+		$pout = $this->parseCalendarTag( '' );
+		$this->assertSame( $wantedCacheExpiry, $pout->getCacheExpiry(),
+			'ParserOutput: cache expiry wasn\'t set to $wgECMaxCacheTime.' );
+	}
+
+	/**
 	 * Helper method: parse <eventcalendar> tag and return the resulting event data.
 	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
 	 * @return array Event data that was provided to JavaScript library.
