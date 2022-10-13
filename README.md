@@ -46,6 +46,15 @@ It's also possible to match both the first and last day of the event.  For examp
     
 Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
 
+If your regex is complex, and you need to use "(" and ")" symbols for other purposes, you must add `?:` after "(" symbols that are not used to match the date.
+For example, if you want to match pages like `Cat Event 1 2022/04/20:2022/04/29`,
+but only if they start with "Cat Event" or "Dog Event", then the following wikitext will find them:
+
+    <EventCalendar>
+    titleRegex = ^(?:Cat|Dog)_Event.*?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?$
+    dateFormat = Y/m/d
+    </EventCalendar>
+
 #### Styling
 
 `aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.

@@ -468,7 +468,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				'2022/05/18 Test Event 3' => 'Event on May 18, no enddate specified'
 			],
 			"titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*\n" .
-				"dateFormat = Y/m/d",
+				'dateFormat = Y/m/d',
 			[
 				[
 					'title' => 'Test Event 1',
@@ -487,6 +487,38 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'start' => '2022-05-18',
 					'end' => '2022-05-19',
 					'url' => '/wiki/2022/05/18_Test_Event_3'
+				]
+			]
+		];
+
+		yield 'calendar with extra braces in titleRegex that has both start and end date' => [
+			[
+				'Cat Event 1 2022/04/20:2022/04/29' => 'Event 1',
+				'Ferret Event 2 2022/05/5:2022/04/7' => 'Event 2',
+				'Dog Event 3 2022/05/10:2022/05/15' => 'Event 3',
+				'Cat Event 4 2022/05/25:2022/05/27' => 'Event 4'
+			],
+			'titleRegex = ' .
+				"^(?:Cat|Dog)_Event.*?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?$\n" .
+				'dateFormat = Y/m/d',
+			[
+				[
+					'title' => 'Cat Event 1',
+					'start' => '2022-04-20',
+					'end' => '2022-04-29',
+					'url' => '/wiki/Cat_Event_1_2022/04/20:2022/04/29'
+				],
+				[
+					'title' => 'Cat Event 4',
+					'start' => '2022-05-25',
+					'end' => '2022-05-27',
+					'url' => '/wiki/Cat_Event_4_2022/05/25:2022/05/27'
+				],
+				[
+					'title' => 'Dog Event 3',
+					'start' => '2022-05-10',
+					'end' => '2022-05-15',
+					'url' => '/wiki/Dog_Event_3_2022/05/10:2022/05/15'
 				]
 			]
 		];
