@@ -9,6 +9,11 @@ Features:
 * titleRegex= parameter can now be configured to retrieve the end date of the multiday event
 	if it has the end date in the title of its page.
 * Leading/trailing symbols `:` and `/` (common delimiters) are trimmed away from the visible event names.
+* Added "height" parameter to set the height of calendar (in pixels) explicitly,
+	as an alternative to default (automatically chosen height) and to "aspectratio" parameter.
+
+Bugfixes:
+* "aspectratio" parameter is no longer ignored.
 
 == JsCalendar 0.3.3 ==
 

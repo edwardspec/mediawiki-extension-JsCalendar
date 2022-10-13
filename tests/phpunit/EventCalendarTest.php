@@ -145,7 +145,6 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
-	 *
 	 * Provides datasets for testEventCalendar().
 	 */
 	public function dataProvider() {
@@ -714,5 +713,45 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$this->assertSame( $expectedSnippet, $actualData[0]['title'],
 			'testSnippetCacheWasUsed(): snippet from the cache wasn\'t used.'
 		);
+	}
+
+	/**
+	 * Verify that parameters like height=300 and aspectratio=1.5 are provided to JavaScript library.
+	 * @dataProvider dataProviderOptionalAttributes
+	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
+	 * @param array $expectedAttributes Attributes of HTML element with class="eventcalendar".
+	 */
+	public function testOptionalAttributes( $wikitext, array $expectedAttributes ) {
+		$pout = $this->parseCalendarTag( $wikitext );
+
+		$html = new DOMDocument();
+		$html->loadHTML( $pout->getText() );
+
+		$xpath = new DOMXpath( $html );
+		$elem = $xpath->query( '//*[@class="eventcalendar"]' )[0];
+
+		foreach ( $expectedAttributes as $key => $value ) {
+			$this->assertSame( $value, $elem->getAttribute( $key ),
+				"Unexpected value of \"$key\" attribute."
+			);
+		}
+
+		$expectedAttributeCount = count( $expectedAttributes ) + 2; // + "id" and "class" attributes
+		$this->assertCount( $expectedAttributeCount, $elem->attributes,
+			'HTML element with class="eventcalendar" has an unexpected number of HTML attributes.' );
+	}
+
+	/**
+	 * Provides datasets for testOptionalAttributes().
+	 * @return array
+	 */
+	public function dataProviderOptionalAttributes() {
+		return [
+			'no parameters' => [ '', [] ],
+			'height=300' => [ 'height=300', [ 'data-height' => '300' ] ],
+			'aspectratio=1.75' => [ 'aspectratio=1.75', [ 'data-aspectratio' => '1.75' ] ],
+			'height=300, aspectratio=1.75 (in this case "aspectratio"  must be ignored)' =>
+				[ "height=300\naspectratio=1.75", [ 'data-height' => '300' ] ],
+		];
 	}
 }

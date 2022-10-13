@@ -5,17 +5,29 @@ jQuery( document ).ready( function( $ ) {
 		for ( var i = 0; i < window.eventCalendarData.length; i++ ) {
 			// render calendar
 			var elem = $( "#eventcalendar-" + ( i + 1 ) )[0];
-			var calendar = new FullCalendar.Calendar( elem, {
-				aspectRatio: window.eventCalendarAspectRatio[i],
+			var attr = {
 				events: window.eventCalendarData[i],
 				eventContent: function ( arg ) {
 					// Allow HTML in event titles.
 					return { html: arg.event.title };
 
 				},
-				contentHeight: 'auto',
 				locale: mw.config.get( 'wgUserLanguage' )
-			} );
+			};
+			var height = elem.dataset.height,
+				aspectRatio = elem.dataset.aspectratio;
+
+			if ( height ) {
+				attr.contentHeight = parseInt( height );
+			} else if ( aspectRatio ) {
+				// Explicitly set width-to-height ratio.
+				attr.aspectRatio = aspectRatio;
+			} else {
+				// Default: no limits on calendar height, no scrollbar.
+				attr.contentHeight = 'auto';
+			}
+
+			var calendar = new FullCalendar.Calendar( elem, attr );
 			calendar.render();
 		}
 	}

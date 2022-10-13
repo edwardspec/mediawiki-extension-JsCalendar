@@ -15,7 +15,6 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
 
     <EventCalendar>
     namespace = Event
-    aspectratio = 1.35
     prefix = Today_in_History/
     suffix = 
     dateFormat = F,_j
@@ -46,7 +45,7 @@ It's also possible to match both the first and last day of the event.  For examp
     
 Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
 
-##### Troubleshooting
+##### Regex troubleshooting
 If your regex is complex, and you need to use "(" and ")" symbols for other purposes, you must add `?:` after "(" symbols that are not used to match the date.
 For example, if you want to match pages like `Cat Event 1 2022/04/20:2022/04/29`,
 but only if they start with "Cat Event" or "Dog Event", then the following wikitext will find them:
@@ -65,8 +64,29 @@ For example, pages like `Cat Event 1 2022/04/29//2022/04/20` (where the end date
     </EventCalendar>
 
 #### Styling
+    
+##### Height of the calendar
 
-`aspectratio` is optional and defaults to 1.6. CSS `max-width` is set to 800px and can be overridden in `MediaWiki:Common.css`.
+By default, the calendar will assume natural height (will increase in height if it's needed for all content to fit), and there won't be any scrollbars.
+
+Alternatively, you can configure the calendar to have a fixed height (in pixels):
+
+    <EventCalendar>
+    height=300
+    </EventCalendar>
+    
+Alternatively, you can configure the calendar to have a chosen width-to-height ratio (e.g. "1.5" means "width is 1.5 times bigger than height"):
+
+    <EventCalendar>
+    aspectratio=1.5
+    </EventCalendar>
+    
+If `height` is set, then `aspectratio` will be ignored.
+
+##### Width of the calendar
+
+Under most circumstances, calendar width shouldn't be changed. By default, it is limited to 800px (via CSS `max-width`),
+but you can override it either in `MediaWiki:Common.css` or via Extension:TemplateStyles.
 
 #### Category-based coloring
 
@@ -85,7 +105,7 @@ The following parameter within `<EventCalendar>` will change the color of event 
 
 ### Requirements
 
-* MediaWiki 1.34
+* MediaWiki 1.35+
 * MySQL (this extension doesn't support PostgreSQL. Patches that add PostgreSQL support are very welcome, but maintainter of this extension won't be implementing this himself).
 
 ### Installation

@@ -349,18 +349,28 @@ class EventCalendar {
 
 		// calendar container and data array
 		$scriptHtml = '';
-		$scriptHtml .=
-			'if ( !window.eventCalendarAspectRatio ) { window.eventCalendarAspectRatio = []; }';
-		$scriptHtml .=
-			'window.eventCalendarAspectRatio.push( ' . floatval( $options['aspectratio'] ?? 1.6 ) . ' );';
 		$scriptHtml .= 'if ( !window.eventCalendarData ) { window.eventCalendarData = []; }';
 		$scriptHtml .= 'window.eventCalendarData.push( ' . FormatJson::encode( $events ) . " );\n";
 
-		$resultHtml = Html::element( 'div', [
+		$attr = [
 			'class' => 'eventcalendar',
 			'id' => 'eventcalendar-' . ( ++ self::$calendarsCounter )
-		] );
-		$resultHtml .= Html::rawElement( 'script', [], $scriptHtml );
+		];
+
+		$height = $options['height'] ?? 0;
+		if ( $height ) {
+			// Calendar has an explicitly chosen height in pixels, e.g. "400".
+			$attr['data-height'] = $height;
+		} else {
+			$aspectratio = floatval( $options['aspectratio'] ?? 0 );
+			if ( $aspectratio ) {
+				// Calendar has an explicitly chosen width-to-height ratio, e.g. "1.6".
+				$attr['data-aspectratio'] = $aspectratio;
+			}
+		}
+
+		$resultHtml = Html::element( 'div', $attr ) .
+			Html::rawElement( 'script', [], $scriptHtml );
 
 		return [ $resultHtml, 'markerType' => 'nowiki' ];
 	}
