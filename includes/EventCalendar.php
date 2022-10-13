@@ -134,10 +134,10 @@ class EventCalendar {
 				}
 
 				// Date then when event begins.
-				$dateString = $matches[1];
+				$dateString = $matches['start'] ?? $matches[1];
 
 				// Optional: date when the event ends.
-				$enddateString = $matches[2] ?? null;
+				$enddateString = $matches['end'] ?? $matches[2] ?? null;
 				if ( $enddateString ) {
 					// If end date is in incorrect format, we treat it as one-day event,
 					// same as if end date wasn't specified at all.

@@ -46,12 +46,21 @@ It's also possible to match both the first and last day of the event.  For examp
     
 Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
 
+##### Troubleshooting
 If your regex is complex, and you need to use "(" and ")" symbols for other purposes, you must add `?:` after "(" symbols that are not used to match the date.
 For example, if you want to match pages like `Cat Event 1 2022/04/20:2022/04/29`,
 but only if they start with "Cat Event" or "Dog Event", then the following wikitext will find them:
 
     <EventCalendar>
     titleRegex = ^(?:Cat|Dog)_Event.*?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?$
+    dateFormat = Y/m/d
+    </EventCalendar>
+    
+Alternatively, you can use syntax `(?<start>something)` and `(?<end>something)` to select the braces that contain the start/end date.
+For example, pages like `Cat Event 1 2022/04/29//2022/04/20` (where the end date is first) can be found by the following wikitext:
+
+    <EventCalendar>
+    titleRegex = ^(Cat|Dog)_Event.*?(?<end>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])//(?<start>[0-9]{4,4}/[0-9][0-9]/[0-9][0-9])$
     dateFormat = Y/m/d
     </EventCalendar>
 

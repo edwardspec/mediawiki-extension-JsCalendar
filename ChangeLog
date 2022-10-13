@@ -6,6 +6,8 @@ Features:
 * Added an option to use FullCalendar 5 (most current version) instead of FullCalendar 2.9.1.
 	This is experimental, because the styling of v5 calendar is preliminary and may be changed later.
 	Can be enabled with $wgJsCalendarFullCalendarVersion = 5;
+* titleRegex= parameter can now be configured to retrieve the end date of the multiday event
+	if it has the end date in the title of its page.
 
 == JsCalendar 0.3.3 ==
 
