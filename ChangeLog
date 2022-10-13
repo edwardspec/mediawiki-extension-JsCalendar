@@ -8,6 +8,7 @@ Features:
 	Can be enabled with $wgJsCalendarFullCalendarVersion = 5;
 * titleRegex= parameter can now be configured to retrieve the end date of the multiday event
 	if it has the end date in the title of its page.
+* Leading/trailing symbols `:` and `/` (common delimiters) are trimmed away from the visible event names.
 
 == JsCalendar 0.3.3 ==
 
