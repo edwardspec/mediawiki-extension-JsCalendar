@@ -110,7 +110,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
-	 * Verify that $wgJsCalendarFullCalendarVersion=2 loads "ext.yasec5" JavaScript module.
+	 * Verify that $wgECMaxCacheTime is used as cache expiration time of the page with the calendar.
 	 */
 	public function testCacheExpiry() {
 		$wantedCacheExpiry = 12345; // in seconds
