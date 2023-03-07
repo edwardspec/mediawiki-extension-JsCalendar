@@ -148,6 +148,9 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 * Provides datasets for testEventCalendar().
 	 */
 	public function dataProvider() {
+		$currentYear = ( new DateTime() )->format( 'Y' );
+		$nextYear = $currentYear + 1;
+
 		yield 'calendar without any pages' => [
 			[ 'Page1' => 'Contents of page 1', 'Page2' => 'Contents of page2' ],
 			'',
@@ -169,26 +172,26 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'Today in History',
-					'start' => '2022-04-12',
-					'end' => '2022-04-13',
+					'start' => "$currentYear-04-12",
+					'end' => "$currentYear-04-13",
 					'url' => '/wiki/Template:Today_in_History/April,_12'
 				],
 				[
 					'title' => 'Today in History',
-					'start' => '2022-05-01',
-					'end' => '2022-05-02',
+					'start' => "$currentYear-05-01",
+					'end' => "$currentYear-05-02",
 					'url' => '/wiki/Template:Today_in_History/May,_1'
 				],
 				[
 					'title' => 'Today in History',
-					'start' => '2022-12-25',
-					'end' => '2022-12-26',
+					'start' => "$currentYear-12-25",
+					'end' => "$currentYear-12-26",
 					'url' => '/wiki/Template:Today_in_History/December,_25'
 				],
 				[
 					'title' => 'Today in History',
-					'start' => '2022-12-31',
-					'end' => '2023-01-01',
+					'start' => "$currentYear-12-31",
+					'end' => "$nextYear-01-01",
 					'url' => '/wiki/Template:Today_in_History/December,_31'
 				]
 			]
@@ -209,26 +212,26 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => '(events)',
-					'start' => '2022-05-01',
-					'end' => '2022-05-02',
+					'start' => "$currentYear-05-01",
+					'end' => "$currentYear-05-02",
 					'url' => '/wiki/1_May_(events)'
 				],
 				[
 					'title' => '(events)',
-					'start' => '2022-05-03',
-					'end' => '2022-05-04',
+					'start' => "$currentYear-05-03",
+					'end' => "$currentYear-05-04",
 					'url' => '/wiki/3_May_(events)'
 				],
 				[
 					'title' => '(events)',
-					'start' => '2022-05-05',
-					'end' => '2022-05-06',
+					'start' => "$currentYear-05-05",
+					'end' => "$currentYear-05-06",
 					'url' => '/wiki/5_May_(events)'
 				],
 				[
 					'title' => '(events)',
-					'start' => '2022-12-25',
-					'end' => '2022-12-26',
+					'start' => "$currentYear-12-25",
+					'end' => "$currentYear-12-26",
 					'url' => '/wiki/25_December_(events)'
 				]
 			]
@@ -287,43 +290,43 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'Bought extra food for bears',
-					'start' => '2022-07-31',
-					'end' => '2022-08-01',
+					'start' => "$currentYear-07-31",
+					'end' => "$currentYear-08-01",
 					'url' => '/wiki/Bought_extra_food_for_bears_31.07'
 					// no color: no "categorycolor" parameter for this category
 				],
 				[
 					'title' => 'Dachshung dog adoption',
-					'start' => '2022-01-15',
-					'end' => '2022-01-16',
+					'start' => "$currentYear-01-15",
+					'end' => "$currentYear-01-16",
 					'url' => '/wiki/Dachshung_dog_adoption_15.01',
 					'color' => 'red'
 				],
 				[
 					'title' => 'Ferret adoption',
-					'start' => '2022-12-31',
-					'end' => '2023-01-01',
+					'start' => "$currentYear-12-31",
+					'end' => "$nextYear-01-01",
 					'url' => '/wiki/Ferret_adoption_31.12',
 					'color' => 'yellow'
 				],
 				[
 					'title' => 'Munchkin cat adoption',
-					'start' => '2022-01-01',
-					'end' => '2022-01-02',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-02",
 					'url' => '/wiki/Munchkin_cat_adoption_01.01',
 					'color' => 'green'
 				],
 				[
 					'title' => 'Released the recovered eagles',
-					'start' => '2022-01-16',
-					'end' => '2022-01-17',
+					'start' => "$currentYear-01-16",
+					'end' => "$currentYear-01-17",
 					'url' => '/wiki/Released_the_recovered_eagles_16.01'
 					// no color: this page doesn't have any categories
 				],
 				[
 					'title' => 'Sphinx cat adoption',
-					'start' => '2022-12-25',
-					'end' => '2022-12-26',
+					'start' => "$currentYear-12-25",
+					'end' => "$currentYear-12-26",
 					'url' => '/wiki/Sphinx_cat_adoption_25.12',
 					'color' => 'green'
 				]
@@ -346,43 +349,43 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'Bought extra food for bears',
-					'start' => '2022-07-31',
-					'end' => '2022-08-01',
+					'start' => "$currentYear-07-31",
+					'end' => "$currentYear-08-01",
 					'url' => '/wiki/Bought_extra_food_for_bears_31.07'
 					// no color: neither title nor text match any of the keywords
 				],
 				[
 					'title' => 'Dachshung dog adoption',
-					'start' => '2022-01-15',
-					'end' => '2022-01-16',
+					'start' => "$currentYear-01-15",
+					'end' => "$currentYear-01-16",
 					'url' => '/wiki/Dachshung_dog_adoption_15.01',
 					'color' => 'red'
 				],
 				[
 					'title' => 'German Shepherd Dog adoption',
-					'start' => '2022-12-26',
-					'end' => '2022-12-27',
+					'start' => "$currentYear-12-26",
+					'end' => "$currentYear-12-27",
 					'url' => '/wiki/German_Shepherd_Dog_adoption_26.12',
 					'color' => 'red'
 				],
 				[
 					'title' => 'Munchkin cat adoption',
-					'start' => '2022-01-01',
-					'end' => '2022-01-02',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-02",
 					'url' => '/wiki/Munchkin_cat_adoption_01.01',
 					'color' => 'green'
 				],
 				[
 					'title' => 'Sphinx adoption',
-					'start' => '2022-12-25',
-					'end' => '2022-12-26',
+					'start' => "$currentYear-12-25",
+					'end' => "$currentYear-12-26",
 					'url' => '/wiki/Sphinx_adoption_25.12',
 					'color' => 'green'
 				],
 				[
 					'title' => 'Unknown animal brought',
-					'start' => '2022-12-31',
-					'end' => '2023-01-01',
+					'start' => "$currentYear-12-31",
+					'end' => "$nextYear-01-01",
 					'url' => '/wiki/Unknown_animal_brought_31.12',
 					'color' => 'yellow'
 
@@ -401,23 +404,23 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'News about not only dogs',
-					'start' => '2022-07-31',
-					'end' => '2022-08-01',
+					'start' => "$currentYear-07-31",
+					'end' => "$currentYear-08-01",
 					'url' => '/wiki/News_about_not_only_dogs_31.07',
 					// Matches both categorycolor.Cats and keywordcolor.dog, but categorycolor always has priority.
 					'color' => 'green'
 				],
 				[
 					'title' => 'News about other animals',
-					'start' => '2022-01-15',
-					'end' => '2022-01-16',
+					'start' => "$currentYear-01-15",
+					'end' => "$currentYear-01-16",
 					'url' => '/wiki/News_about_other_animals_15.01',
 					'color' => 'red' // From keywordcolor.dog
 				],
 				[
 					'title' => 'News about some animals',
-					'start' => '2022-01-01',
-					'end' => '2022-01-02',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-02",
 					'url' => '/wiki/News_about_some_animals_01.01',
 					'color' => 'green' // From categorycolor.Cats
 				]
@@ -440,33 +443,33 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'New Year Celebrations',
-					'start' => '2022-01-01',
-					'end' => '2022-01-03',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-03",
 					'url' => '/wiki/01.01_New_Year_Celebrations'
 				],
 				[
 					'title' => 'One Day Event 1',
-					'start' => '2022-01-10',
-					'end' => '2022-01-11',
+					'start' => "$currentYear-01-10",
+					'end' => "$currentYear-01-11",
 					'url' => '/wiki/10.01_One_Day_Event_1'
 				],
 				[
 					'title' => 'Four Days Event',
-					'start' => '2022-06-12',
-					'end' => '2022-06-16',
+					'start' => "$currentYear-06-12",
+					'end' => "$currentYear-06-16",
 					'url' => '/wiki/12.06_Four_Days_Event'
 				],
 				[
 					// This date is not adjacent to date of other 4 pages, so it forms a separate event.
 					'title' => 'Four Days Event',
-					'start' => '2022-06-17',
-					'end' => '2022-06-18',
+					'start' => "$currentYear-06-17",
+					'end' => "$currentYear-06-18",
 					'url' => '/wiki/17.06_Four_Days_Event'
 				],
 				[
 					'title' => 'Unrelated Event',
-					'start' => '2022-06-16',
-					'end' => '2022-06-17',
+					'start' => "$currentYear-06-16",
+					'end' => "$currentYear-06-17",
 					'url' => '/wiki/16.06_Unrelated_Event'
 				]
 			]
@@ -580,32 +583,32 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => '<p><b>Friday 13th</b> is a <i>very scary</i> day (</p>',
-					'start' => '2022-02-13',
-					'end' => '2022-02-14',
+					'start' => "$currentYear-02-13",
+					'end' => "$currentYear-02-14",
 					'url' => '/wiki/February_13:_Friday'
 				],
 				[
 					'title' => "<p>Line1\nLine2\nLine3</p><p>Paragraph2</p><p>Para</p>",
-					'start' => '2022-03-01',
-					'end' => '2022-03-02',
+					'start' => "$currentYear-03-01",
+					'end' => "$currentYear-03-02",
 					'url' => '/wiki/February_29:_Best_birthday'
 				],
 				[
 					'title' => '<p>Lorem ipsum dolor sit amet, consectetur adipisc</p>',
-					'start' => '2022-01-01',
-					'end' => '2022-01-02',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-02",
 					'url' => '/wiki/January_1:_New_Year'
 				],
 				[
 					'title' => "<p>Very short text</p>",
-					'start' => '2022-01-02',
-					'end' => '2022-01-03',
+					'start' => "$currentYear-01-02",
+					'end' => "$currentYear-01-03",
 					'url' => '/wiki/January_2:_Day_After_New_Year'
 				],
 				[
 					'title' => "<p>Text <b>forgot to close this tag\n</b></p>",
-					'start' => '2022-07-01',
-					'end' => '2022-07-02',
+					'start' => "$currentYear-07-01",
+					'end' => "$currentYear-07-02",
 					'url' => '/wiki/July_1:_Truncated_Html_Tag'
 				]
 			]
@@ -623,20 +626,20 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			[
 				[
 					'title' => 'Event 3',
-					'start' => '2022-02-13',
-					'end' => '2022-02-14',
+					'start' => "$currentYear-02-13",
+					'end' => "$currentYear-02-14",
 					'url' => '/wiki/February_13:_Event_3'
 				],
 				[
 					'title' => 'Event 4',
-					'start' => '2022-03-01',
-					'end' => '2022-03-02',
+					'start' => "$currentYear-03-01",
+					'end' => "$currentYear-03-02",
 					'url' => '/wiki/February_29:_Event_4'
 				],
 				[
 					'title' => 'Event 1',
-					'start' => '2022-01-01',
-					'end' => '2022-01-02',
+					'start' => "$currentYear-01-01",
+					'end' => "$currentYear-01-02",
 					'url' => '/wiki/January_1:_Event_1'
 				]
 			]
