@@ -11,6 +11,7 @@ Features:
 * Leading/trailing symbols `:` and `/` (common delimiters) are trimmed away from the visible event names.
 * Added "height" parameter to set the height of calendar (in pixels) explicitly,
 	as an alternative to default (automatically chosen height) and to "aspectratio" parameter.
+* symbols= parameter now works on wikis with $wgCompressRevisions=true.
 
 Bugfixes:
 * "aspectratio" parameter is no longer ignored.

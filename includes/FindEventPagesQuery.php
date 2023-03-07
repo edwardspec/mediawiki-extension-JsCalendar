@@ -23,8 +23,10 @@
 
 namespace MediaWiki\JsCalendar;
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use ObjectCache;
+use Wikimedia\Rdbms\FakeResultWrapper;
 
 class FindEventPagesQuery {
 
@@ -157,11 +159,10 @@ class FindEventPagesQuery {
 		$this->tables[] = 'slot_roles';
 		$this->tables[] = 'slots';
 		$this->tables[] = 'content';
-		$this->tables[] = 'text';
-		$this->fields[] = 'old_text AS text';
+		$this->fields[] = 'content_address';
 
 		// There is only 1 row, but not having this GROUP BY would be an error in ONLY_FULL_GROUP_BY mode.
-		$this->options['GROUP BY'][] = 'old_text';
+		$this->options['GROUP BY'][] = 'content_address';
 
 		$this->joinConds['revision'] = [
 			'INNER JOIN',
@@ -180,14 +181,7 @@ class FindEventPagesQuery {
 		];
 		$this->joinConds['content'] = [
 			'INNER JOIN',
-			[
-				'content_id=slot_content_id',
-				'content_address ' . $this->dbr->buildLike( 'tt:', $this->dbr->anyString() )
-			]
-		];
-		$this->joinConds['text'] = [
-			'INNER JOIN',
-			[ 'old_id=SUBSTR(content_address,4)' ] // Strip tt: suffix from content_address
+			[ 'content_id=slot_content_id' ]
 		];
 	}
 
@@ -214,7 +208,7 @@ class FindEventPagesQuery {
 	 * @return \Wikimedia\Rdbms\IResultWrapper
 	 */
 	public function getResult() {
-		return $this->dbr->select(
+		$res = $this->dbr->select(
 			$this->tables,
 			$this->fields,
 			$this->where,
@@ -222,5 +216,26 @@ class FindEventPagesQuery {
 			$this->options,
 			$this->joinConds
 		);
+
+		if ( isset( $this->joinConds['content'] ) ) {
+			// Need to convert $row->content_address to $row->text for all rows.
+			$blobAddresses = [];
+			foreach ( $res as $row ) {
+				$blobAddresses[] = $row->content_address;
+			}
+
+			$status = MediaWikiServices::getInstance()->getBlobStore()->getBlobBatch( $blobAddresses );
+			if ( $status->isOK() ) {
+				$modifiedRows = [];
+				foreach ( $res as $row ) {
+					$row->text = $status->value[$row->content_address];
+					$modifiedRows[] = $row;
+				}
+
+				$res = new FakeResultWrapper( $modifiedRows );
+			}
+		}
+
+		return $res;
 	}
 }

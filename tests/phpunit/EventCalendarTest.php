@@ -719,6 +719,23 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
+	 * Verify that symbols= parameter works if $wgCompressRevisions=true.
+	 */
+	public function testSnippetForCompressedRevision() {
+		$pageText = 'Expected snippet';
+		$expectedSnippet = "<p>$pageText</p>";
+
+		$this->setMwGlobals( 'wgCompressRevisions', true );
+		$this->insertPage( 'January 1: New Year', $pageText );
+
+		// Render the calendar.
+		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
+		$actualData = $this->parseCalendarEvents( $wikitext );
+
+		$this->assertSame( $expectedSnippet, $actualData[0]['title'] );
+	}
+
+	/**
 	 * Verify that parameters like height=300 and aspectratio=1.5 are provided to JavaScript library.
 	 * @dataProvider dataProviderOptionalAttributes
 	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
