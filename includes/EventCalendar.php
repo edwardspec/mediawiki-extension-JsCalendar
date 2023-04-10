@@ -203,11 +203,13 @@ class EventCalendar {
 					// NOTE: the reason why we don't use $dbCache->set() here is that SqlBagOStuff::set() will do
 					// both compression and serialization, and decoding this is in protected methods.
 					// We don't want all that code duplication here, so we store HTML snippet in raw form.
-					$dbw->insert( 'objectcache', [
-						'keyname' => $dbCache->makeKey( 'jscalendar-snippet-' . $row->latest ),
-						'value' => $snippet,
-						'exptime' => $dbw->timestamp( time() + 604800 ) // 7 days
-					], __METHOD__ );
+					if ( !MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
+						$dbw->insert( 'objectcache', [
+							'keyname' => $dbCache->makeKey( 'jscalendar-snippet-' . $row->latest ),
+							'value' => $snippet,
+							'exptime' => $dbw->timestamp( time() + 604800 ) // 7 days
+						], __METHOD__ );
+					}
 				}
 
 				$textToDisplay = $snippet;

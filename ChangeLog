@@ -12,6 +12,7 @@ Features:
 * Added "height" parameter to set the height of calendar (in pixels) explicitly,
 	as an alternative to default (automatically chosen height) and to "aspectratio" parameter.
 * symbols= parameter now works on wikis with $wgCompressRevisions=true.
+* symbols= parameter now works on wikis in "read only" mode.
 
 Bugfixes:
 * "aspectratio" parameter is no longer ignored.
