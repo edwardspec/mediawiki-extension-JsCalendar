@@ -12,15 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4]
-        branch: [REL1_39]
-        include:
-          - php: 8.1
-            branch: REL1_39
-            dbtype: mysql
-          - php: 8.1
-            branch: REL1_40
-            dbtype: mysql
+        php: [8.1]
+        branch: [REL1_39, REL1_40]
+
     env:
       branch: ${{ matrix.branch }}
     runs-on: ubuntu-20.04
@@ -31,7 +25,7 @@ jobs:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       mariadb:
-        image: mariadb
+        image: mariadb:10
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
         ports:
