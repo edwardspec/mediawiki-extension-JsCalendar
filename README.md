@@ -45,6 +45,17 @@ It's also possible to match both the first and last day of the event.  For examp
     
 Both date parts (start date and end date)  **must be surrounded in "(" and ")" symbols**.
 
+##### Excluding the last day
+
+When using `titleRegex` to determine the end date, the last day is considered to be a part of the event (so the event `2022/06/20:2022/06/22_Name` would be shown on June 20, June 21 and June 22).
+
+This is different from standard behavior of FullCalendar library (where last day is not included). You can exclude the last day by adding `excludeLastDay=1` parameter:
+    <EventCalendar>
+    titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*
+    dateFormat = Y/m/d
+    excludeLastDay = 1
+    </EventCalendar>
+
 ##### Regex troubleshooting
 If your regex is complex, and you need to use "(" and ")" symbols for other purposes, you must add `?:` after "(" symbols that are not used to match the date.
 For example, if you want to match pages like `Cat Event 1 2022/04/20:2022/04/29`,

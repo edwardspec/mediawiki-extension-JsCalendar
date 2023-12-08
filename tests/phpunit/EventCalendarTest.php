@@ -487,13 +487,43 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				[
 					'title' => 'Test Event 1',
 					'start' => '2022-04-28',
-					'end' => '2022-04-29',
+					'end' => '2022-04-30',
 					'url' => '/wiki/2022/04/28:2022/04/29_Test_Event_1',
 				],
 				[
 					'title' => 'Test Event 2',
 					'start' => '2022-05-10',
-					'end' => '2022-04-15',
+					'end' => '2022-04-16',
+					'url' => '/wiki/2022/05/10:2022/04/15_Test_Event_2'
+				],
+				[
+					'title' => 'Test Event 3',
+					'start' => '2022-05-18',
+					'end' => '2022-05-19',
+					'url' => '/wiki/2022/05/18_Test_Event_3'
+				]
+			]
+		];
+
+		yield 'calendar with events that span several days (explicitly set end date, with excludeLastDay=1)' => [
+			[
+				'2022/04/28:2022/04/29 Test Event 1' => 'Event from April 28 to April 29',
+				'2022/05/10:2022/04/15 Test Event 2' => 'Event from May 10 to May 15',
+				'2022/05/18 Test Event 3' => 'Event on May 18, no enddate specified'
+			],
+			"titleRegex = ^([0-9]{4,4}/[0-9][0-9]/[0-9][0-9]):?([0-9]{4,4}/[0-9][0-9]/[0-9][0-9])?_.*\n" .
+				"dateFormat = Y/m/d\nexcludeLastDay=1",
+			[
+				[
+					'title' => 'Test Event 1',
+					'start' => '2022-04-28',
+					'end' => '2022-04-29', // Not increased by +1 day (because of excludeLastDay=1).
+					'url' => '/wiki/2022/04/28:2022/04/29_Test_Event_1',
+				],
+				[
+					'title' => 'Test Event 2',
+					'start' => '2022-05-10',
+					'end' => '2022-04-15',  // Not increased by +1 day (because of excludeLastDay=1).
 					'url' => '/wiki/2022/05/10:2022/04/15_Test_Event_2'
 				],
 				[
@@ -519,19 +549,19 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				[
 					'title' => 'Cat Event 1',
 					'start' => '2022-04-20',
-					'end' => '2022-04-29',
+					'end' => '2022-04-30',
 					'url' => '/wiki/Cat_Event_1_2022/04/20:2022/04/29'
 				],
 				[
 					'title' => 'Cat Event 4',
 					'start' => '2022-05-25',
-					'end' => '2022-05-27',
+					'end' => '2022-05-28',
 					'url' => '/wiki/Cat_Event_4_2022/05/25:2022/05/27'
 				],
 				[
 					'title' => 'Dog Event 3',
 					'start' => '2022-05-10',
-					'end' => '2022-05-15',
+					'end' => '2022-05-16',
 					'url' => '/wiki/Dog_Event_3_2022/05/10:2022/05/15'
 				]
 			]
@@ -551,19 +581,19 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				[
 					'title' => 'Cat Event 1',
 					'start' => '2022-04-20',
-					'end' => '2022-04-29',
+					'end' => '2022-04-30',
 					'url' => '/wiki/Cat_Event_1_2022/04/29//2022/04/20'
 				],
 				[
 					'title' => 'Cat Event 4',
 					'start' => '2022-05-25',
-					'end' => '2022-05-27',
+					'end' => '2022-05-28',
 					'url' => '/wiki/Cat_Event_4_2022/05/27//2022/05/25'
 				],
 				[
 					'title' => 'Dog Event 3',
 					'start' => '2022-05-10',
-					'end' => '2022-05-15',
+					'end' => '2022-05-16',
 					'url' => '/wiki/Dog_Event_3_2022/05/15//2022/05/10'
 				]
 			]

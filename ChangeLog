@@ -13,6 +13,8 @@ Features:
 	as an alternative to default (automatically chosen height) and to "aspectratio" parameter.
 * symbols= parameter now works on wikis with $wgCompressRevisions=true.
 * symbols= parameter now works on wikis in "read only" mode.
+* When the last day of multiday event is determined by titleRegex=, that last day is no longer excluded
+	from the calendar. Added excludeLastDay=1 parameter to restore the previous behavior.
 
 Bugfixes:
 * "aspectratio" parameter is no longer ignored.

@@ -51,6 +51,7 @@ class EventCalendar {
 		$prefix = $opt['prefix'] ?? '';
 		$suffix = $opt['suffix'] ?? '';
 		$titleRegex = $opt['titleRegex'] ?? '';
+		$excludeLastDay = $opt['excludeLastDay'] ?? false;
 
 		$dateFormat = $opt['dateFormat'] ?? 'Y/m/d';
 		$limit = $opt['limit'] ?? 500;
@@ -157,6 +158,9 @@ class EventCalendar {
 			$startdate = $dateTime->format( 'Y-m-d' );
 
 			if ( $enddateTime ) {
+				if ( !$excludeLastDay ) {
+					$enddateTime->modify( '+1 day' );
+				}
 				$enddate = $enddateTime->format( 'Y-m-d' );
 			} else {
 				$dateTime->modify( '+1 day' );
