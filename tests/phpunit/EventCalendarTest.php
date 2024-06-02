@@ -606,7 +606,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
 				'January 2: Day After New Year' => 'Very short text',
 				'February 13: Friday' => "'''Friday 13th''' is a ''very scary'' day (citations wanted).",
-				'February 29: Best birthday' => "Line1\nLine2\nLine3\n\nParagraph2\n\nParagraph3.",
+				'February 27: Best birthday' => "Line1\nLine2\nLine3\n\nParagraph2\n\nParagraph3.",
 				'July 1: Truncated Html Tag' => 'Text <b>forgot to close this tag'
 			],
 			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 50",
@@ -619,9 +619,9 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				],
 				[
 					'title' => "<p>Line1\nLine2\nLine3</p><p>Paragraph2</p><p>Para</p>",
-					'start' => "$currentYear-03-01",
-					'end' => "$currentYear-03-02",
-					'url' => '/wiki/February_29:_Best_birthday'
+					'start' => "$currentYear-02-27",
+					'end' => "$currentYear-02-28",
+					'url' => '/wiki/February_27:_Best_birthday'
 				],
 				[
 					'title' => '<p>Lorem ipsum dolor sit amet, consectetur adipisc</p>',
@@ -649,7 +649,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				'January 1: Event 1' => 'Text 1',
 				'January 2: Event 2' => 'Text 2',
 				'February 13: Event 3' => 'Text 3',
-				'February 29: Event 4' => 'Text 4',
+				'February 27: Event 4' => 'Text 4',
 				'July 1: Event 5' => 'Text 5'
 			],
 			"titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nlimit=3",
@@ -662,9 +662,9 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				],
 				[
 					'title' => 'Event 4',
-					'start' => "$currentYear-03-01",
-					'end' => "$currentYear-03-02",
-					'url' => '/wiki/February_29:_Event_4'
+					'start' => "$currentYear-02-27",
+					'end' => "$currentYear-02-28",
+					'url' => '/wiki/February_27:_Event_4'
 				],
 				[
 					'title' => 'Event 1',
