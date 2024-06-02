@@ -103,7 +103,7 @@ class EventCalendar {
 		$res = $query->getResult();
 
 		// Obtain connections to DB/cache that may or may not be used for storing snippets in cache.
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_MASTER );
 		$dbCache = ObjectCache::getInstance( CACHE_DB );
 
 		$eventmap = [];

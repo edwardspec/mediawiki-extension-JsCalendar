@@ -730,7 +730,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$cache = ObjectCache::getInstance( CACHE_DB );
 		$cacheKey = $cache->makeKey( 'jscalendar-snippet-' ) . $pageId;
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->getServiceContainer()->getDBLoadBalancer()->getConnection( DB_MASTER );
 		$dbw->insert( 'objectcache', [
 			'keyname' => $cache->makeKey( 'jscalendar-snippet-' ) . $pageId,
 			'value' => $expectedSnippet,

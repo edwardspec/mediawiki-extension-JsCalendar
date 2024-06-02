@@ -73,7 +73,7 @@ class FindEventPagesQuery {
 	protected $joinConds = [];
 
 	public function __construct() {
-		$this->dbr = wfGetDB( DB_REPLICA );
+		$this->dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 	}
 
 	/**
