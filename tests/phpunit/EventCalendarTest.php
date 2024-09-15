@@ -523,7 +523,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 				[
 					'title' => 'Test Event 2',
 					'start' => '2022-05-10',
-					'end' => '2022-04-15',  // Not increased by +1 day (because of excludeLastDay=1).
+					'end' => '2022-04-15', // Not increased by +1 day (because of excludeLastDay=1).
 					'url' => '/wiki/2022/05/10:2022/04/15_Test_Event_2'
 				],
 				[

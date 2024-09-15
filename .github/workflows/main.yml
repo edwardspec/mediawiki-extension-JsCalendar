@@ -17,7 +17,7 @@ jobs:
 
     env:
       branch: ${{ matrix.branch }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     services:
       memcached:
         image: memcached:latest
@@ -25,15 +25,15 @@ jobs:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       mariadb:
-        image: mariadb:10
+        image: mariadb
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: |
             buildcache
@@ -61,14 +61,14 @@ jobs:
 
   # PHP linters: phpcs, parallel-lint, etc.
   linter:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-            php-version: '7.4'
+            php-version: '8.1'
             tools: composer
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.composer/cache
           key: buildcache-linter
@@ -77,17 +77,17 @@ jobs:
 
   # Phan (PHP static analyzer)
   phan:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       branch: REL1_39
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-            php-version: '7.4'
+            php-version: '8.1'
             extensions: ast
             tools: composer
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.composer/cache
