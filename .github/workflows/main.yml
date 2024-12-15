@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [8.1]
-        branch: [REL1_39, REL1_40, REL1_41, REL1_42, REL1_43]
+        php: [7.4]
+        branch: [REL1_35, REL1_36, REL1_37, REL1_38]
 
     env:
       branch: ${{ matrix.branch }}
@@ -43,7 +43,7 @@ jobs:
         with:
             php-version: ${{ matrix.php }}
             extensions: mbstring, intl, opcache, mysqli
-            tools: composer
+            tools: composer:v1
       - uses: edwardspec/github-action-build-mediawiki@v1
         with:
           branch: ${{ env.branch }}

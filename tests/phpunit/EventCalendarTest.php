@@ -21,6 +21,8 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Integration test of <eventcalendar> tag.
  *
@@ -68,7 +70,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 * @return ParserOutput
 	 */
 	private function parseCalendarTag( $wikitext ) {
-		$parser = $this->getServiceContainer()->getParser();
+		$parser = MediaWikiServices::getInstance()->getParser();
 		$title = Title::newFromText( 'Title of page with the calendar itself' );
 		$popt = ParserOptions::newFromAnon();
 
@@ -730,7 +732,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$cache = ObjectCache::getInstance( CACHE_DB );
 		$cacheKey = $cache->makeKey( 'jscalendar-snippet-' ) . $pageId;
 
-		$dbw = $this->getServiceContainer()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert( 'objectcache', [
 			'keyname' => $cache->makeKey( 'jscalendar-snippet-' ) . $pageId,
 			'value' => $expectedSnippet,
