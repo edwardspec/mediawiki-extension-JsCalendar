@@ -53,8 +53,16 @@
 		"MediaWiki\\JsCalendar\\HtmlSanitizer": "includes/HtmlSanitizer.php",
 		"MediaWiki\\JsCalendar\\Hooks": "includes/Hooks.php"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\JsCalendar\\Hooks",
+			"services": [
+				"JsCalendar.EventCalendar"
+			]
+		}
+	},
 	"Hooks": {
-		"ParserFirstCallInit": "MediaWiki\\JsCalendar\\Hooks::onParserFirstCallInit"
+		"ParserFirstCallInit": "main"
 	},
 	"config": {
 		"ECMaxCacheTime": {
@@ -66,5 +74,8 @@
 			"description": "Version of FullCalendar library to use (this library is responsible for how the calendar is displayed). The only supported values are 2 (default) and 5 (experimental)."
 		}
 	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }

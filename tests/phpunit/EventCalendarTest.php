@@ -102,7 +102,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testFullCalendarVersionUnknown() {
 		$this->expectExceptionObject( new MWException(
-			'Unsupported value of $wgJsCalendarFullCalendarVersion (3): can only be 2 or 5.'
+			'Unsupported value of $wgJsCalendarFullCalendarVersion: can only be 2 or 5.'
 		) );
 		$this->setMwGlobals( 'wgJsCalendarFullCalendarVersion', 3 );
 

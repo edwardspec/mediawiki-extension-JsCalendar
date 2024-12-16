@@ -26,19 +26,56 @@ namespace MediaWiki\JsCalendar;
 use DateTime;
 use FormatJson;
 use Html;
-use MediaWiki\MediaWikiServices;
+use Language;
+use MediaWiki\Config\ServiceOptions;
 use MWException;
 use ObjectCache;
 use Parser;
+use ReadOnlyMode;
 use Title;
+use Wikimedia\Rdbms\ILoadBalancer;
 
 class EventCalendar {
+	/** @var ServiceOptions */
+	protected $options;
+
+	/** @var ILoadBalancer */
+	protected $loadBalancer;
+
+	/** @var Language */
+	protected $contentLanguage;
+
+	/** @var ReadOnlyMode */
+	protected $readOnlyMode;
+
+	public const CONSTRUCTOR_OPTIONS = [
+		'ECMaxCacheTime',
+		'JsCalendarFullCalendarVersion'
+	];
+
+	/**
+	 * @param ServiceOptions $options
+	 * @param ILoadBalancer $loadBalancer
+	 * @param Language $contentLanguage
+	 * @param ReadOnlyMode $readOnlyMode
+	 */
+	public function __construct(
+		ServiceOptions $options,
+		ILoadBalancer $loadBalancer,
+		Language $contentLanguage,
+		ReadOnlyMode $readOnlyMode
+	) {
+		$this->options = $options;
+		$this->loadBalancer = $loadBalancer;
+		$this->contentLanguage = $contentLanguage;
+		$this->readOnlyMode = $readOnlyMode;
+	}
 
 	/**
 	 * @var int
 	 * For multiple calendars on the same page: they will be named Calendar1, Calendar2, etc.
 	 */
-	protected static $calendarsCounter = 0;
+	protected $calendarsCounter = 0;
 
 	/**
 	 * Calculate an array of events in the format expected by JavaScript side of the calendar.
@@ -46,7 +83,7 @@ class EventCalendar {
 	 * @param Parser $recursiveParser Parser object that is being used to render <EventCalendar>.
 	 * @return array
 	 */
-	public static function findEvents( array $opt, Parser $recursiveParser ) {
+	public function findEvents( array $opt, Parser $recursiveParser ) {
 		$namespaceIdx = $opt['namespace'] ?? NS_MAIN;
 		$prefix = $opt['prefix'] ?? '';
 		$suffix = $opt['suffix'] ?? '';
@@ -103,7 +140,7 @@ class EventCalendar {
 		$res = $query->getResult();
 
 		// Obtain connections to DB/cache that may or may not be used for storing snippets in cache.
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = $this->loadBalancer->getConnection( DB_PRIMARY );
 		$dbCache = ObjectCache::getInstance( CACHE_DB );
 
 		$eventmap = [];
@@ -207,7 +244,7 @@ class EventCalendar {
 					// NOTE: the reason why we don't use $dbCache->set() here is that SqlBagOStuff::set() will do
 					// both compression and serialization, and decoding this is in protected methods.
 					// We don't want all that code duplication here, so we store HTML snippet in raw form.
-					if ( !MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
+					if ( !$this->readOnlyMode->isReadOnly() ) {
 						$dbw->insert( 'objectcache', [
 							'keyname' => $dbCache->makeKey( 'jscalendar-snippet-' . $row->latest ),
 							'value' => $snippet,
@@ -307,12 +344,9 @@ class EventCalendar {
 	 * @param Parser $parser
 	 * @return array|string
 	 */
-	public static function renderEventCalendar( $input, Parser $parser ) {
-		// config variables
-		global $wgECMaxCacheTime, $wgJsCalendarFullCalendarVersion;
-
+	public function renderCalendar( $input, Parser $parser ) {
 		$modules = [];
-		switch ( $wgJsCalendarFullCalendarVersion ) {
+		switch ( intval( $this->options->get( 'JsCalendarFullCalendarVersion' ) ) ) {
 			case 2:
 				$modules[] = 'ext.yasec';
 				break;
@@ -322,14 +356,15 @@ class EventCalendar {
 				break;
 
 			default:
-				throw new MWException( 'Unsupported value of $wgJsCalendarFullCalendarVersion (' .
-					$wgJsCalendarFullCalendarVersion . '): can only be 2 or 5.' );
+				throw new MWException(
+					'Unsupported value of $wgJsCalendarFullCalendarVersion: can only be 2 or 5.' );
 		}
 
 		$parser->getOutput()->addModules( $modules );
 
-		if ( $wgECMaxCacheTime !== false ) {
-			$parser->getOutput()->updateCacheExpiry( $wgECMaxCacheTime );
+		$cacheTime = $this->options->get( 'ECMaxCacheTime' );
+		if ( $cacheTime !== false ) {
+			$parser->getOutput()->updateCacheExpiry( $cacheTime );
 		}
 
 		// Parse the contents of the tag ($input string) for parameters.
@@ -345,13 +380,13 @@ class EventCalendar {
 			$val = trim( $keyval[1] );
 
 			if ( $key == 'namespace' ) {
-				$val = MediaWikiServices::getInstance()->getContentLanguage()->getNsIndex( $val );
+				$val = $this->contentLanguage->getNsIndex( $val );
 			}
 
 			$options[$key] = $val;
 		}
 
-		$events = self::findEvents( array_filter( $options ), $parser );
+		$events = $this->findEvents( array_filter( $options ), $parser );
 
 		// calendar container and data array
 		$scriptHtml = '';
@@ -360,7 +395,7 @@ class EventCalendar {
 
 		$attr = [
 			'class' => 'eventcalendar',
-			'id' => 'eventcalendar-' . ( ++ self::$calendarsCounter )
+			'id' => 'eventcalendar-' . ( ++$this->calendarsCounter )
 		];
 
 		$height = $options['height'] ?? 0;

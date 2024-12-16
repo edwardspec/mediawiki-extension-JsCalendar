@@ -23,39 +23,24 @@
 
 namespace MediaWiki\JsCalendar;
 
-use Parser;
+use MediaWiki\Config\ServiceOptions;
+use MediaWiki\MediaWikiServices;
 
-class Hooks {
+// @codeCoverageIgnoreStart
 
-	/** @var EventCalendar */
-	protected $eventCalendar;
+return [
+	'JsCalendar.EventCalendar' =>
+		static function ( MediaWikiServices $services ): EventCalendar {
+			return new EventCalendar(
+				new ServiceOptions(
+					EventCalendar::CONSTRUCTOR_OPTIONS,
+					$services->getMainConfig()
+				),
+				$services->getDBLoadBalancer(),
+				$services->getContentLanguage(),
+				$services->getReadOnlyMode()
+			);
+		}
+];
 
-	/**
-	 * @param EventCalendar $eventCalendar
-	 */
-	public function __construct( EventCalendar $eventCalendar ) {
-		$this->eventCalendar = $eventCalendar;
-	}
-
-	/**
-	 * Set up the <EventCalendar> tag.
-	 *
-	 * @param Parser $parser
-	 * @return true
-	 */
-	public function onParserFirstCallInit( Parser $parser ) {
-		$parser->setHook( 'EventCalendar', [ $this, 'parserFunction' ] );
-		return true;
-	}
-
-	/**
-	 * The callback function for converting the input text to HTML output
-	 * @param string $input
-	 * @param mixed $args
-	 * @param Parser $parser
-	 * @return array|string
-	 */
-	public function parserFunction( $input, $args, Parser $parser ) {
-		return $this->eventCalendar->renderCalendar( $input, $parser );
-	}
-}
+// @codeCoverageIgnoreEnd
