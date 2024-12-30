@@ -752,6 +752,12 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 * Verify that symbols= parameter works if $wgCompressRevisions=true.
 	 */
 	public function testSnippetForCompressedRevision() {
+		$dbw = $this->getServiceContainer()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		if ( $dbw->getType() === 'postgres' ) {
+			$this->markTestSkipped(
+				'MediaWiki itself doesn\'t seem to support $wgCompressRevisions with PostgreSQL.' );
+		}
+
 		$pageText = 'Expected snippet';
 		$expectedSnippet = "<p>$pageText</p>";
 
