@@ -109,7 +109,8 @@ class FindEventPagesQuery {
 			return;
 		}
 
-		$this->where[] = 'page_title RLIKE ' . $this->dbr->addQuotes( $regex );
+		$rlike = $this->dbr->getType() === 'postgres' ? '~' : 'RLIKE';
+		$this->where[] = "page_title $rlike " . $this->dbr->addQuotes( $regex );
 	}
 
 	/**
