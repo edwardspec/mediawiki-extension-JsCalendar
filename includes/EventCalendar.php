@@ -232,6 +232,12 @@ class EventCalendar {
 					// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
 					$snippet = $recursiveParser->recursiveTagParseFully( $row->text );
 
+					// Truncate to maximum allowed length PLUS some extra (in case some HTML tags get removed),
+					// so that we wouldn't have to sanitize the whole article (potentially 10-80 kb.),
+					// but also without snippet becoming shorter than $maxSymbols after the tags are removed.
+					$extraSymbols = 1000;
+					$snippet = mb_substr( $snippet, 0, $maxSymbols + $extraSymbols );
+
 					// Remove the image tags: in 99,9% of cases they are too wide to be included into the calendar.
 					$snippet = HtmlSanitizer::sanitizeSnippet( $snippet );
 
