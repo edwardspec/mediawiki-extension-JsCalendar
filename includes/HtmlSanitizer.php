@@ -25,18 +25,60 @@ namespace MediaWiki\JsCalendar;
 
 use Wikimedia\RemexHtml\Serializer\HtmlFormatter;
 use Wikimedia\RemexHtml\Serializer\Serializer;
+use Wikimedia\RemexHtml\Serializer\SerializerNode;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
 
 class HtmlSanitizer {
 	/**
-	 * Remove invalid/non-matching/truncated HTML tags and return correct (sanitized) HTML.
+	 * Remove unwanted/invalid/non-matching/truncated HTML tags and return correct (sanitized) HTML.
 	 * @param string $html
 	 * @return string
 	 */
-	public static function sanitizeHTML( $html ) {
-		$formatter = new HtmlFormatter;
+	public static function sanitizeSnippet( $html ) {
+		$formatter = new class () extends HtmlFormatter {
+			/** @inheritDoc */
+			public function startDocument( $fragmentNamespace, $fragmentName ) {
+				// Remove DOCTYPE.
+				return '';
+			}
+
+			/** @inheritDoc */
+			public function element( SerializerNode $parent, SerializerNode $node, $contents ) {
+				switch ( $node->name ) {
+					// Remove everything outside the <body> tag.
+					case 'head':
+						return '';
+
+					case 'html':
+					case 'body':
+						return $contents;
+
+					case 'img':
+						// Remove the image tags: in 99,9% of cases they are too wide
+						// to be included into the calendar.
+						// Not needed in MediaWiki 1.40+ (already removed with the <span> below).
+						return '';
+
+					case 'span':
+						if ( ( $node->attrs['typeof'] ?? '' ) === 'mw:File' ) {
+							// Wrapper around the image.
+							return '';
+						}
+						break;
+
+					// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
+
+					case 'p':
+						// Remove trailing newline inside <p> tags.
+						$contents = trim( $contents );
+				}
+
+				return parent::element( $parent, $node, $contents );
+			}
+		};
+
 		$serializer = new Serializer( $formatter );
 		$treeBuilder = new TreeBuilder( $serializer );
 		$dispatcher = new Dispatcher( $treeBuilder );
@@ -44,13 +86,6 @@ class HtmlSanitizer {
 
 		$tokenizer->execute();
 		$html = $serializer->getResult();
-
-		// Remove doctype, <head>, etc.: everything outside the <body> tag.
-		// TODO: this can probably be implemented by subclassing HtmlFormatter class.
-		$html = preg_replace( '@^.*<body>(.*)</body>.*$@s', '$1', $html );
-
-		// Remove trailing newline inside <p></p> tags.
-		$html = preg_replace( "@\n</p>@", '</p>', $html );
 
 		return $html;
 	}

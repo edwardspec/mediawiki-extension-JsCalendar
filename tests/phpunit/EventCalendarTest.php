@@ -619,7 +619,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 					'url' => '/wiki/February_13:_Friday'
 				],
 				[
-					'title' => "<p>Line1\nLine2\nLine3</p><p>Paragraph2</p><p>Para</p>",
+					'title' => "<p>Line1\nLine2\nLine3</p><p>Paragraph2</p><p>Paragr</p>",
 					'start' => "$currentYear-02-27",
 					'end' => "$currentYear-02-28",
 					'url' => '/wiki/February_27:_Best_birthday'
@@ -778,13 +778,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	public function testSnippetSanitizer() {
 		$filename = 'Testimage.png';
 		$pageText = "Expected snippet [[File:$filename]]";
-
-		$isMW39 = version_compare( MW_VERSION, '1.40.0', '<' );
-		$expectedSnippet = '<p>Expected snippet ' .
-			( $isMW39 ? '' : '<span class="mw-default-size" typeof="mw:File">' ) .
-			"<a href=\"/wiki/File:$filename\" class=\"" .
-			( $isMW39 ? 'image' : 'mw-file-description' ) .
-			'"></a>' . ( $isMW39 ? '' : '</span>' ) . '</p>';
+		$expectedSnippet = '<p>Expected snippet</p>';
 
 		// Upload a test file, so that [[File:]] syntax would create an actual thumbnail, not a redlink.
 		$user = $this->getTestUser()->getUser();

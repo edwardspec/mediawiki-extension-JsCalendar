@@ -230,15 +230,16 @@ class EventCalendar {
 				if ( !$snippet ) {
 					// Full text of the page (no more than N first symbols) was requested.
 					// NOTE: we can't use getParserOutput() here, because we are already inside Parser::parse().
-					$parsedHtml = $recursiveParser->recursiveTagParseFully( $row->text );
+					$snippet = $recursiveParser->recursiveTagParseFully( $row->text );
 
 					// Remove the image tags: in 99,9% of cases they are too wide to be included into the calendar.
-					// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
-					$parsedHtml = preg_replace( '/<img[^>]+>/', '', $parsedHtml );
-					$snippet = mb_substr( $parsedHtml, 0, $maxSymbols );
+					$snippet = HtmlSanitizer::sanitizeSnippet( $snippet );
+
+					// Truncate to maximum allowed length.
+					$snippet = mb_substr( $snippet, 0, $maxSymbols );
 
 					// Remove truncated HTML tags (if any).
-					$snippet = HtmlSanitizer::sanitizeHTML( $snippet );
+					$snippet = HtmlSanitizer::sanitizeSnippet( $snippet );
 
 					// Store the snippet in cache.
 					// NOTE: the reason why we don't use $dbCache->set() here is that SqlBagOStuff::set() will do
