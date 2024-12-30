@@ -14,9 +14,11 @@ jobs:
       matrix:
         php: [8.1]
         branch: [REL1_39, REL1_40, REL1_41, REL1_42, REL1_43]
+        dbtype: [mysql, postgres]
 
     env:
       branch: ${{ matrix.branch }}
+      DBTYPE: ${{ matrix.dbtype }}
     runs-on: ubuntu-22.04
     services:
       memcached:
@@ -31,6 +33,14 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: root
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -48,6 +58,8 @@ jobs:
         with:
           branch: ${{ env.branch }}
           extraLocalSettings: tests/ci/JsCalendarSettings.php
+          dbtype: ${{ env.DBTYPE }}
+          dbserver: ${{ env.DBTYPE == 'mysql' && '127.0.0.1:3306' || '127.0.0.1' }}
       - name: Finalize the installation of MediaWiki
         run: |
           rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/JsCalendar/
