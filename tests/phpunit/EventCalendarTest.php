@@ -774,10 +774,12 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 	/**
 	 * Verify that unwanted parts of HTML (such as images) are removed from the snippet.
+	 * @dataProvider dataProviderSnippetSanitizer
+	 * @param bool $isThumb False to add an image to the page, true to add a thumbnail.
 	 */
-	public function testSnippetSanitizer() {
-		$filename = 'Testimage.png';
-		$pageText = "Expected snippet [[File:$filename]]";
+	public function testSnippetSanitizer( $isThumb ) {
+		$filename = 'Testimage' . ( $isThumb ? '1' : '2' ) . '.png';
+		$pageText = 'Expected snippet [[File:' . $filename . ( $isThumb ? '|thumb' : '' ) . ']]';
 		$expectedSnippet = '<p>Expected snippet</p>';
 
 		// Upload a test file, so that [[File:]] syntax would create an actual thumbnail, not a redlink.
@@ -798,6 +800,17 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$actualData = $this->parseCalendarEvents( $wikitext );
 
 		$this->assertSame( $expectedSnippet, $actualData[0]['title'] );
+	}
+
+	/**
+	 * Provides datasets for testSnippetSanitizer().
+	 * @return array
+	 */
+	public function dataProviderSnippetSanitizer() {
+		return [
+			'image (not a thumbnail)' => [ false ],
+			'thumbnail' => [ true ]
+		];
 	}
 
 	/**

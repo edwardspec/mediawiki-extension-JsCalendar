@@ -46,6 +46,9 @@ class HtmlSanitizer {
 
 			/** @inheritDoc */
 			public function element( SerializerNode $parent, SerializerNode $node, $contents ) {
+				$typeof = $node->attrs['typeof'] ?? null;
+				$classes = explode( ' ', $node->attrs['class'] ?? '' );
+
 				switch ( $node->name ) {
 					// Remove everything outside the <body> tag.
 					case 'head':
@@ -55,20 +58,33 @@ class HtmlSanitizer {
 					case 'body':
 						return $contents;
 
-					case 'img':
-						// Remove the image tags: in 99,9% of cases they are too wide
-						// to be included into the calendar.
-						// Not needed in MediaWiki 1.40+ (already removed with the <span> below).
-						return '';
-
-					case 'span':
-						if ( ( $node->attrs['typeof'] ?? '' ) === 'mw:File' ) {
-							// Wrapper around the image.
+					case 'a':
+						// MediaWiki 1.39 only: remove the links around non-thumbnail images.
+						if ( in_array( 'image', $classes ) ) {
 							return '';
 						}
 						break;
 
-					// TODO: properly remove <div class="thumb"> with all contents (currently hidden by CSS).
+					case 'div':
+						// MediaWiki 1.39 only: remove wrapper around the thumbnail.
+						if ( in_array( 'thumb', $classes ) ) {
+							return '';
+						}
+						break;
+
+					case 'span':
+						// MediaWiki 1.40+: remove the wrappers around non-thumbnail images.
+						if ( $typeof === 'mw:File' ) {
+							return '';
+						}
+						break;
+
+					case 'figure':
+						// MediaWiki 1.40+: remove wrapper around the thumbnail.
+						if ( $typeof === 'mw:File/Thumb' ) {
+							return '';
+						}
+						break;
 
 					case 'p':
 						// Remove trailing newline inside <p> tags.

@@ -12,10 +12,6 @@ div.fc {
 	color: white;
 }
 
-.fc div.thumb {
-	display: none;
-}
-
 /* Make links within the event easy to see. This is needed due to event font being always white */
 .fc-event a {
 	text-decoration: underline;
