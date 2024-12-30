@@ -109,10 +109,6 @@ The following parameter within `<EventCalendar>` will change the color of event 
     keywordcolor.arctic = yellow
     keywordcolor.statistically = lightgreen
 
-### Requirements
-
-* MySQL (this extension doesn't support PostgreSQL. Patches that add PostgreSQL support are very welcome, but maintainter of this extension won't be implementing this himself).
-
 ### Installation
 
 1. Deploy the files to `extensions/JsCalendar`.

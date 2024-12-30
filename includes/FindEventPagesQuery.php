@@ -109,6 +109,10 @@ class FindEventPagesQuery {
 			return;
 		}
 
+		// Don't include named capture brackets into the SQL query,
+		// they are not needed there, and PostgreSQL can't parse a regex that has them.
+		$regex = str_replace( [ '?<start>', '?<end>' ], '', $regex );
+
 		$rlike = $this->dbr->getType() === 'postgres' ? '~' : 'RLIKE';
 		$this->where[] = "page_title $rlike " . $this->dbr->addQuotes( $regex );
 	}
