@@ -21,6 +21,8 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Integration test of <eventcalendar> tag.
  *
@@ -599,7 +601,6 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 			]
 		];
 
-		// TODO: test removal of thumbnails.
 		yield 'calendar with snippets (symbols=50)' => [
 			[
 				'January 1: New Year' =>
@@ -766,6 +767,40 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 		// Render the calendar.
 		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 100";
+		$actualData = $this->parseCalendarEvents( $wikitext );
+
+		$this->assertSame( $expectedSnippet, $actualData[0]['title'] );
+	}
+
+	/**
+	 * Verify that unwanted parts of HTML (such as images) are removed from the snippet.
+	 */
+	public function testSnippetSanitizer() {
+		$filename = 'Testimage.png';
+		$pageText = "Expected snippet [[File:$filename]]";
+
+		$isMW39 = version_compare( MW_VERSION, '1.40.0', '<' );
+		$expectedSnippet = '<p>Expected snippet ' .
+			( $isMW39 ? '' : '<span class="mw-default-size" typeof="mw:File">' ) .
+			"<a href=\"/wiki/File:$filename\" class=\"" .
+			( $isMW39 ? 'image' : 'mw-file-description' ) .
+			'"></a>' . ( $isMW39 ? '' : '</span>' ) . '</p>';
+
+		// Upload a test file, so that [[File:]] syntax would create an actual thumbnail, not a redlink.
+		$user = $this->getTestUser()->getUser();
+		$stash = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo()->getUploadStash( $user );
+		$key = $stash->stashFile( __DIR__ . '/../resources/image100x100.png' )->getFileKey();
+
+		$upload = new UploadFromStash( $user );
+		$upload->initialize( $key, $filename );
+
+		$status = $upload->performUpload( '', false, false, $user );
+		$this->assertTrue( $status->isOK(), 'Failed to upload test file: ' . $status->getMessage()->plain() );
+
+		$this->insertPage( 'January 1: New Year', $pageText );
+
+		// Render the calendar.
+		$wikitext = "titleRegex = ^([A-Za-z]+_[0-9][0-9]?).*\ndateFormat = F_j\nsymbols = 500";
 		$actualData = $this->parseCalendarEvents( $wikitext );
 
 		$this->assertSame( $expectedSnippet, $actualData[0]['title'] );
