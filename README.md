@@ -1,13 +1,8 @@
 ## JsCalendar
 
-NOTE: this is based on another extension: https://github.com/improper/mediawiki-extensions-yasec
-... but doesn't aim to maintain backward compatibility with it.
+Outputs a tabular calendar filled with events automatically generated from page titles.
 
-Outputs a tabular calendar filled with events automatically generated
-from page titles in a certain namespace. Based on the [intersection extension][1]
-and the [FullCalendar jQuery plugin][2].
-
-Demo: [FoodHackingBase Events][3]
+Based on FullCalendar library: https://fullcalendar.io/
 
 ### Usage
 
@@ -116,7 +111,6 @@ The following parameter within `<EventCalendar>` will change the color of event 
 
 ### Requirements
 
-* MediaWiki 1.35+
 * MySQL (this extension doesn't support PostgreSQL. Patches that add PostgreSQL support are very welcome, but maintainter of this extension won't be implementing this himself).
 
 ### Installation
@@ -132,14 +126,14 @@ The following parameter within `<EventCalendar>` will change the color of event 
     * Setup your namespace:
 
       ```php
-      $wgExtraNamespaces = array(
-          100 => "Event",
-          101 => "Event_talk",
-      );
-      $wgNamespacesToBeSearchedDefault = array(
+      $wgExtraNamespaces = [
+          100 => 'Event',
+          101 => 'Event_talk',
+      ];
+      $wgNamespacesToBeSearchedDefault = [
           NS_MAIN => true,
           100     => true,
-      );
+      ];
       ```
 
     * For testing you might want to disable the cache:
@@ -151,8 +145,3 @@ The following parameter within `<EventCalendar>` will change the color of event 
       # be outdated)
       $wgECMaxCacheTime = 60*60*24;   // How long to cache pages in seconds
       ```
-
-  [1]: http://www.mediawiki.org/wiki/Extension:DynamicPageList_(Wikimedia)
-  [2]: http://arshaw.com/fullcalendar/
-  [3]: https://foodhackingbase.org/wiki/Events
-  
