@@ -15,7 +15,7 @@ Assuming that event pages are called `Event:Today_in_History/April,_12` (where E
     dateFormat = F,_j
     </EventCalendar>
     
-... here F_j is the format from https://www.php.net/manual/ru/datetime.createfromformat.php - "F" means "name of month", and "j" means "day (with leading zero)".
+... here F_j is the format from https://www.php.net/manual/en/datetimeimmutable.createfromformat.php#datetimeimmutable.createfromformat.parameters - "F" means "name of month", and "j" means "day (with leading zero)".
 
 Everything between "prefix" and "suffix" should be a date.
 
