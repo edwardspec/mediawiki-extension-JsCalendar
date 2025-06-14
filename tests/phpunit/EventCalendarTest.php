@@ -22,6 +22,14 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
+use Title as Title39;
+
+if ( !class_exists( Title::class ) ) {
+	// MediaWiki 1.39
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal
+	class_alias( Title39::class, Title::class );
+}
 
 /**
  * Integration test of <eventcalendar> tag.
@@ -132,7 +140,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$pout = $this->parseCalendarTag( $wikitext );
 		$pout->clearWrapperDivClass();
 
-		$parsedHTML = $pout->getText();
+		$parsedHTML = $pout->getRawText();
 
 		$matches = null;
 		$matchResult = preg_match( '@window.eventCalendarData.push\( (.*) \);\s*</script>@',
@@ -823,7 +831,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$pout = $this->parseCalendarTag( $wikitext );
 
 		$html = new DOMDocument();
-		$html->loadHTML( $pout->getText() );
+		$html->loadHTML( $pout->getRawText() );
 
 		$xpath = new DOMXpath( $html );
 		$elem = $xpath->query( '//*[@class="eventcalendar"]' )[0];

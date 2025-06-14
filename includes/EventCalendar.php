@@ -25,15 +25,28 @@ namespace MediaWiki\JsCalendar;
 
 use DateTime;
 use FormatJson;
-use Html;
+use Html as Html39;
 use Language;
 use MediaWiki\Config\ServiceOptions;
+use MediaWiki\Html\Html;
+use MediaWiki\Title\Title;
 use MWException;
 use ObjectCache;
 use Parser;
 use ReadOnlyMode;
-use Title;
+use Title as Title39;
 use Wikimedia\Rdbms\ILoadBalancer;
+
+if ( !class_exists( Title::class ) ) {
+	// MediaWiki 1.39
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal
+	class_alias( Title39::class, Title::class );
+}
+if ( !class_exists( Html::class ) ) {
+	// MediaWiki 1.39
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal
+	class_alias( Html39::class, Html::class );
+}
 
 class EventCalendar {
 	/** @var ServiceOptions */
