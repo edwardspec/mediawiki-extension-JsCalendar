@@ -142,18 +142,43 @@ class FindEventPagesQuery {
 		}
 
 		$this->tables[] = 'categorylinks';
-		$this->fields[] = 'cl_to AS category';
-		$this->joinConds['categorylinks'] = [
-			'LEFT JOIN',
-			[
-				'cl_from=page_id',
-				'cl_to' => $categoryNames
-			]
-		];
 
-		// If the page belongs to 2+ colored categories, only one of them will affect the color.
-		// Currently we don't care which category's color will be applied.
-		$this->options['GROUP BY'][] = 'cl_to';
+		if ( version_compare( MW_VERSION, '1.45.0-alpha', '>=' ) ) {
+			// MediaWiki 1.45+
+			$this->tables[] = 'linktarget';
+			$this->fields[] = 'lt_title AS category';
+
+			$this->joinConds['categorylinks'] = [
+				'LEFT JOIN',
+				[
+					'cl_from=page_id'
+				]
+			];
+			$this->joinConds['linktarget'] = [
+				'LEFT JOIN',
+				[
+					'lt_id=cl_target_id',
+					'lt_title' => $categoryNames
+				]
+			];
+
+			// If the page belongs to 2+ colored categories, only one of them will affect the color.
+			// Currently we don't care which category's color will be applied.
+			$this->options['GROUP BY'][] = 'lt_title';
+
+		} else {
+			// MediaWiki 1.39-1.44
+			$this->fields[] = 'cl_to AS category';
+
+			$this->joinConds['categorylinks'] = [
+				'LEFT JOIN',
+				[
+					'cl_from=page_id',
+					'cl_to' => $categoryNames
+				]
+			];
+			$this->options['GROUP BY'][] = 'cl_to';
+		}
 	}
 
 	/**
