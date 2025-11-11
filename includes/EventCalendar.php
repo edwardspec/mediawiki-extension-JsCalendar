@@ -303,7 +303,7 @@ class EventCalendar {
 			$color = null;
 			$category = $row->category ?? null;
 			if ( $category ) {
-				$color = $coloredCategories[$row->category] ?? null;
+				$color = $coloredCategories[$category] ?? null;
 			}
 
 			if ( !$color && $coloredKeywords ) {
