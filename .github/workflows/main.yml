@@ -19,7 +19,7 @@ jobs:
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     services:
       memcached:
         image: memcached:latest
@@ -73,7 +73,7 @@ jobs:
 
   # PHP linters: phpcs, parallel-lint, etc.
   linter:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -89,7 +89,7 @@ jobs:
 
   # Phan (PHP static analyzer)
   phan:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       branch: REL1_43
     steps:
