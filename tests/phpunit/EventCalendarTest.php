@@ -782,7 +782,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 	/**
 	 * Verify that unwanted parts of HTML (such as images) are removed from the snippet.
-	 * @dataProvider dataProviderSnippetSanitizer
+	 * @dataProvider provideSnippetSanitizer
 	 * @param bool $isThumb False to add an image to the page, true to add a thumbnail.
 	 */
 	public function testSnippetSanitizer( $isThumb ) {
@@ -814,7 +814,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 * Provides datasets for testSnippetSanitizer().
 	 * @return array
 	 */
-	public function dataProviderSnippetSanitizer() {
+	public function provideSnippetSanitizer() {
 		return [
 			'image (not a thumbnail)' => [ false ],
 			'thumbnail' => [ true ]
@@ -823,7 +823,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 	/**
 	 * Verify that parameters like height=300 and aspectratio=1.5 are provided to JavaScript library.
-	 * @dataProvider dataProviderOptionalAttributes
+	 * @dataProvider provideOptionalAttributes
 	 * @param string $wikitext Contents of <eventcalendar> tag (without the tag itself).
 	 * @param array $expectedAttributes Attributes of HTML element with class="eventcalendar".
 	 */
@@ -851,7 +851,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 	 * Provides datasets for testOptionalAttributes().
 	 * @return array
 	 */
-	public function dataProviderOptionalAttributes() {
+	public function provideOptionalAttributes() {
 		return [
 			'no parameters' => [ '', [] ],
 			'height=300' => [ 'height=300', [ 'data-height' => '300' ] ],
