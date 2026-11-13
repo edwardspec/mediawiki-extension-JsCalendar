@@ -140,7 +140,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$pout = $this->parseCalendarTag( $wikitext );
 		$pout->clearWrapperDivClass();
 
-		$parsedHTML = $pout->getRawText();
+		$parsedHTML = $pout->getContentHolderText();
 
 		$matches = null;
 		$matchResult = preg_match( '@window.eventCalendarData.push\( (.*) \);\s*</script>@',
@@ -719,11 +719,12 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 
 			$cache = ObjectCache::getInstance( CACHE_DB );
 			$cacheKey = $cache->makeKey( 'jscalendar-snippet-' ) . $title->getLatestRevId();
-			$this->assertSelect( 'objectcache',
-				[ 'value' ],
-				[ 'keyname' => $cacheKey ],
-				[ [ $expectedSnippet ] ]
-			);
+
+			$this->newSelectQueryBuilder()
+				->tables( [ 'objectcache' ] )
+				->fields( [ 'value' ] )
+				->conds( [ 'keyname' => $cacheKey ] )
+				->assertResultSet( [ [ $expectedSnippet ] ] );
 		}
 	}
 
@@ -831,7 +832,7 @@ class EventCalendarTest extends MediaWikiIntegrationTestCase {
 		$pout = $this->parseCalendarTag( $wikitext );
 
 		$html = new DOMDocument();
-		$html->loadHTML( $pout->getRawText() );
+		$html->loadHTML( $pout->getContentHolderText() );
 
 		$xpath = new DOMXpath( $html );
 		$elem = $xpath->query( '//*[@class="eventcalendar"]' )[0];
